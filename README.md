@@ -4,6 +4,22 @@ WebDownloadJobsManage
 Download Web for purpose
 
 
+Development Environment setting up:
+1. to install mongodb on server: http://docs.mongodb.org/manual/installation/ , better to install with package manager, like brew
+2. to start mongodb server: $mongod
+2. test mongodb server connection: $mongo
+3. 
+
+
+mongodb style:
+1. document == record or row in a table in sql
+2. collection == table in sql
+3. insert document: db.[collection].insert([{type:'misc', item:'card'}])
+4. insert with update: db.[collection].update(<query>, <update>, <upsert>, <multi>), options: upsert (if set to true, creates a new document when no document matces the query criteria. the default vaue is false, which does not insert a new document when no match is found.) and multi (if set to true, ipdates multiple documents that meet the query criteria, if set to false, updates one document, the deault value is false)
+4. insert with save is same as insert with update
+5. query: db.<collection>.find(<query>): an empty query document {} selects all documents in the collection.  specify conditions using query operators. AND, OR, 
+
+mongodb stores all documents in collections. a collection is a group of related documents that have a set of shared common indexes. collections are analogous to a table in relational databases. 
 
 
 
