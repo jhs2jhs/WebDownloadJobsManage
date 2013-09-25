@@ -30,8 +30,8 @@ function jobs_get(req, res) {
 	}
 	db_opt(function(db){
 		var query = 
-		db.collection('jobs')
-			.find({'job_target':job_target, 'job_status':{$gt:0}})
+		db.collection(job_target)
+			.find({'job_status':{$gt:0}})
 			.limit(client_job_request_count)
 			.toArray(function(err, docs){
 				console.dir(docs)
@@ -42,7 +42,7 @@ function jobs_get(req, res) {
 				}
 				// update the job_status
 				db_opt(function(db1){
-					db1.collection('jobs')
+					db1.collection(job_target)
 						.update(
 							{'_id': {$in: jobs_ids}}, 
 							{$set: {'job_status':1, 'client_id':client_id}}, 

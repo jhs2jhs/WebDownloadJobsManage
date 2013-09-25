@@ -3,6 +3,11 @@ WebDownloadJobsManage
 
 Download Web for purpose
 
+## todo
+1. python data push into mongo. learn how to delete data from command, require username and password
+2. nodejs sever needs to fill the rest jobs. 
+3. nodejs client start to work then. 
+
 
 ## Development Environment setting up:
 1. to install mongodb on server: http://docs.mongodb.org/manual/installation/ , better to install with package manager, like brew
@@ -13,6 +18,10 @@ Download Web for purpose
 ##### python 
 1. install: `pip install pymongo`
 2. 
+
+
+#### install supervisor for nodejs debugging
+npm install supervisor -g
 
 ##### mongodb in node.js
 http://mongodb.github.io/node-mongodb-native/api-generated/collection.html
@@ -32,8 +41,9 @@ http://mongodb.github.io/node-mongodb-native/api-generated/collection.html
 
 
 ## web scrapting storage structure
+for each job_target: ==> should be collection or table to reduce the masiveness in the table. 'log' is been reserved. 
+
 1. job_id
-2. job_target
 3. job_url
 4. job_file_path
 5. client_id
