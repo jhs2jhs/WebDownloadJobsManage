@@ -8,7 +8,21 @@ Download Web for purpose
 1. to install mongodb on server: http://docs.mongodb.org/manual/installation/ , better to install with package manager, like brew
 2. to start mongodb server: $mongod
 2. test mongodb server connection: $mongo
-3. 
+
+
+
+## web scrapting storage structure
+1. job_id
+2. job_target
+3. job_url
+4. job_file_path
+
+
+estimated finish time. 
+email is send based on several people. 
+can jobs be add automatically?
+
+
 
 
 ## mongodb style:
@@ -60,6 +74,21 @@ SUM () | $sum
 COUNT() | $sum
 
 
+### MongoDB http
+1. mongodb provide a simple http interface for administrators. the default port is 28017. Locally from http://localhost:28017 
+2. simple REST interface
+	1. query: `http://127.0.0.1:28017/databaseName/collectionName/?filter_a=1&limit=-10`
+	2. 
+	
+### Import and Export MongoDB data
+JSON does not have the following data types that exist in BSON documents: data_binary, data_date, data_timestamp, data_regex, data_oid and data_ref. As a result, using any tool that decodes BSON documents into JSON will suffer some loss of fidelity. 
+If maintaining type fidelity is important, consider writing a data import and export system that does not force BSON documents into JSON form as part of the process. 
+mongodb provides two utility tools for export and import: mongoexport and mongoimport. Output file can be JSON or CSV format. 
+1. mongoexport 
+
+
+
+
 
 ## Server side database consideration:
 1. server would performan as RESTful for jobs management. 
@@ -67,6 +96,7 @@ COUNT() | $sum
 3. sqlite3 is not good in server side. it is good to transform the database while development, but it is less easy to manage the transform. 
 4. 
 3. use mongodb?
+4. sever side backup, automatically 
 
 ## client side databaset consideration:
 1. client should use standlone, single-file, serveless database. 
