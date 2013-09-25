@@ -10,12 +10,70 @@ Download Web for purpose
 2. test mongodb server connection: $mongo
 
 
+##### python 
+1. install: `pip install pymongo`
+2. 
+
+##### mongodb in node.js
+http://mongodb.github.io/node-mongodb-native/api-generated/collection.html
+
+#### db find and then update in jobs_get
+	function saveAll( callback ){
+  		var count = 0;
+  		docs.forEach(function(doc){
+      		doc.save(function(err){
+          		count++;
+          		if( count == docs.length ){
+             		callback();
+          		}
+      		});
+  		});
+	}
+
 
 ## web scrapting storage structure
 1. job_id
 2. job_target
 3. job_url
 4. job_file_path
+5. client_id
+6. create_date
+7. update_date
+8. job_status
+
+### jobs_get:
+1. request: `client_id`, `client_job_request_count`, `job_target`
+2. response: `job_target`, `client_id`, `<jobs>`
+3. db operation: assign client_id to jobs, set job_status to 1
+
+
+### jobs_put:
+1. request: `client_id`, `<jobs>`
+2. response: `[true or false]`
+3. db operation: update jobs content, set job_status to 2
+
+### jobs_view:
+1. request: `job_target`
+2. response: `status and count`
+
+### jobs_reset:
+1. request: `job_target`, `client_id`
+2. response: `redirect to jobs_view`
+3. db operation: update job_status into 0, keep log
+
+### jobs_backup_export:
+1. request: `job_target`, `client_id`
+2. response: `download`,
+3. db operation: keep log
+
+### jobs_backup_import:
+1. request:`job_target`, `client_id`, `<jobs>`
+2. response: `[true | false]`
+3. db operation: keep log
+
+
+
+
 
 
 estimated finish time. 
