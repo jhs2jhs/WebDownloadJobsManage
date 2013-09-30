@@ -17,6 +17,13 @@ function hello(req, res){
 	res.send('Hello World, Jobs Manager');
 }
 
+var job_status_figure = {
+	'unread': 1,
+	'assigned': 2,
+	'done': 3,
+	'error_when_reading': 4
+}
+
 function jobs_get(req, res) {
 	qs = req.query;
 	client_id = qs.client_id;
@@ -31,7 +38,7 @@ function jobs_get(req, res) {
 	db_opt(function(db){
 		var query = 
 		db.collection(job_target)
-			.find({'job_status':{$gt:0}})
+			.find({'job_status':{$lte:job_status_figure.unread}})
 			.limit(client_job_request_count)
 			.toArray(function(err, docs){
 				console.dir(docs)
@@ -45,11 +52,14 @@ function jobs_get(req, res) {
 					db1.collection(job_target)
 						.update(
 							{'_id': {$in: jobs_ids}}, 
-							{$set: {'job_status':1, 'client_id':client_id}}, 
+							{$set: {'job_status':job_status_figure.assigned, 'client_id':client_id}}, 
+							{multi:true},
 							function(err){
 								if (err){
 									res.send(400, 'db update error');
 								} else {
+									console.log(jobs_ids)
+									console.log(job_status_figure.assigned, job_status_figure.unread)
 									res.send(docs)
 								}
 							});

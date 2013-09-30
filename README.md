@@ -7,13 +7,38 @@ Download Web for purpose
 1. python data push into mongo. learn how to delete data from command, require username and password
 2. nodejs sever needs to fill the rest jobs. 
 3. nodejs client start to work then. 
+4. how to add new jobs without stopping???
+
+## done: 
+1. python db_insert_row.py to insert db from local db into mongodb server
+2. http://localhost:8080/web_jobs/jobs_get?client_id=dtc&client_job_request_count=10&job_target=appid_to_asin to get a list jobs. 
+3. 
+
 
 
 ## Development Environment setting up:
 1. to install mongodb on server: http://docs.mongodb.org/manual/installation/ , better to install with package manager, like brew
 2. to start mongodb server: $mongod
 2. test mongodb server connection: $mongo
+3. install pymongo for python environment 
 
+
+
+how to remove all data in a collection:
+db.collection.remove()
+db.collection.drop()
+db.collection.insert() will create a collection if it is not exists, but it can not insert a document with same _id value. 
+db.collection.save() will crate a collection if _id is not existing, otherwise, it will update a existing document in it. 
+db.collection.count(<query>)
+
+
+
+### mongodb http rest set up
+1. $mongodb --rest
+2. access via : `http://127.0.0.1:28017/web_jobs/appid_to_asin/`. the format is `host:port/db/collection/` . make sure to add back slash in the end. 
+3. can add a limit: `http://127.0.0.1:28017/databaseName/collectionName/?limit=-10` 
+4. can skip: `http://127.0.0.1:28017/databaseName/collectionName/?skip=5`
+5. 
 
 ##### python 
 1. install: `pip install pymongo`
