@@ -15,7 +15,7 @@ collection = db[job_target]
 print collection
 
 ## only be used for fresh insert, as existing _id would cause duplicate insert and then error
-def job_insert_single(job_id, job_url, job_file_path, client_id, create_date, update_date, job_status):
+def job_insert_single(job_id, job_url, job_file_path, client_id, create_date, update_date, job_status, http_status):
 	job = {
 		"_id":job_id, ## prevent replicated valued add in
 		"job_url":job_url,
@@ -23,7 +23,8 @@ def job_insert_single(job_id, job_url, job_file_path, client_id, create_date, up
 		"client_id": client_id,
 		"create_date": create_date,
 		"update_date": update_date,
-		"job_status": job_status
+		"job_status": job_status,
+		"http_status": http_status
 	}
 	j_id = collection.insert(job)
 	print j_id
@@ -32,20 +33,22 @@ def job_insert_bulk(jobs):
 	j_ids = collection.insert(jobs)
 
 ## it will not create collection if it is not exist
-def job_update(job_id, job_url, job_file_path, client_id, create_date, update_date, job_status):
+def job_update(job_id, job_url, job_file_path, client_id, create_date, update_date, job_status, http_status):
 	job = {
 		"job_url":job_url,
 		"job_file_path": job_file_path,
 		"client_id": client_id,
 		"create_date": create_date,
 		"update_date": update_date,
-		"job_status": job_status
+		"job_status": job_status,
+		"http_status": http_status
+
 	}
 	j = collection.update({'_id':client_id}, {"$set":job}, upset=True)
 	print j
 
 ## same as _update method, but would create collection if it is not exist
-def job_save(job_id, job_url, job_file_path, client_id, create_date, update_date, job_status):
+def job_save(job_id, job_url, job_file_path, client_id, create_date, update_date, job_status, http_status):
 	job = {
 		"_id":job_id, ## prevent replicated valued add in
 		"job_url":job_url,
@@ -53,7 +56,8 @@ def job_save(job_id, job_url, job_file_path, client_id, create_date, update_date
 		"client_id": client_id,
 		"create_date": create_date,
 		"update_date": update_date,
-		"job_status": job_status
+		"job_status": job_status, 
+		"http_status": http_status
 	}
 	j = collection.save(job)
 	#print j
@@ -68,7 +72,8 @@ def job_insert_single_demo():
 		create_date = str(datetime.now())
 		update_date = str(datetime.now())
 		job_status = 1
-		job_update(job_id, job_url, job_file_path, client_id, create_date, update_date, job_status)
+		http_status = -1
+		job_update(job_id, job_url, job_file_path, client_id, create_date, update_date, job_status, http_status)
 
 def job_insert_bulk_demo():
 	conn = sqlite3.connect('./amazon_ec2.db')
@@ -86,7 +91,8 @@ def job_insert_bulk_demo():
 		create_date = str(datetime.now())
 		update_date = str(datetime.now())
 		job_status = 1
-		job_save(job_id, job_url, job_file_path, client_id, create_date, update_date, job_status)
+		http_status = -1
+		job_save(job_id, job_url, job_file_path, client_id, create_date, update_date, job_status, http_status)
 		#print app_id
 		i = i + 1
 		if i > t + 10000:

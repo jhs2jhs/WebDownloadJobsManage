@@ -7,6 +7,9 @@
 	},
 	"dependencies":{
 		"mongodb":"*",
-		"express":"*"
+		"express":"*",
+		"ejdb":"*",
+		"request":"*",
+		"tingodb":"*"
 	}
 }

@@ -58,8 +58,6 @@ function jobs_get(req, res) {
 								if (err){
 									res.send(400, 'db update error');
 								} else {
-									console.log(jobs_ids)
-									console.log(job_status_figure.assigned, job_status_figure.unread)
 									res.send(docs)
 								}
 							});

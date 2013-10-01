@@ -14,7 +14,8 @@ Download Web for purpose
 2. http://localhost:8080/web_jobs/jobs_get?client_id=dtc&client_job_request_count=10&job_target=appid_to_asin to get a list jobs. 
 3. 
 
-
+we only need one sever, with automatically add jobs, or manage the db operation. 
+we need multiple client, each client is for each job, so need to have utility files. 
 
 ## Development Environment setting up:
 1. to install mongodb on server: http://docs.mongodb.org/manual/installation/ , better to install with package manager, like brew
@@ -31,6 +32,9 @@ db.collection.insert() will create a collection if it is not exists, but it can 
 db.collection.save() will crate a collection if _id is not existing, otherwise, it will update a existing document in it. 
 db.collection.count(<query>)
 
+
+### ejdb for client local data store
+the reason do not use it, is it has to require unique _id, which is conflict to maongo custom _id
 
 
 ### mongodb http rest set up
