@@ -17,6 +17,14 @@ Download Web for purpose
 we only need one sever, with automatically add jobs, or manage the db operation. 
 we need multiple client, each client is for each job, so need to have utility files. 
 
+
+because ejdb does not support self app_id, so i have to change the job_id in mongodb
+
+
+mongodb remeber to close db after reach the funciton, otherwise it will meet connection error. check out on server side
+
+
+
 ## Development Environment setting up:
 1. to install mongodb on server: http://docs.mongodb.org/manual/installation/ , better to install with package manager, like brew
 2. to start mongodb server: $mongod
