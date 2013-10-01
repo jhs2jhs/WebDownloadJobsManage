@@ -14,8 +14,8 @@ def job_upsert_bulk():
 	while r != None:
 		app_id = r[0]
 		job_id = app_id
-		job_url = 'http://www.amazon.com/gp/mas/dl/android?p='+app_id
-		job_file_path = '../../data_row/web_jobs/appdi_to_asin/%s.html'%(app_id)
+		job_url = 'http://www.amazon.com/gp/mas/dl/android?p='+app_id ##+'/'  ## do not forge to add / in the end
+		job_file_path = '../../data_row/web_jobs/%s/%s.html'%(job_target, app_id)
 		client_id = 'db_insert_row.py'
 		create_date = str(datetime.now())
 		update_date = str(datetime.now())

@@ -8,6 +8,11 @@ Download Web for purpose
 2. nodejs sever needs to fill the rest jobs. 
 3. nodejs client start to work then. 
 4. how to add new jobs without stopping???
+5. design a protocol chart 
+6. common error: 'http encode, check / in the end of url'
+7. job manager need to add path automatically, in the folder. 
+8. job manager need to change the time duration for download, automatically. 
+9. job manager needs to know if the client is dead or not. 
 
 ## done: 
 1. python db_insert_row.py to insert db from local db into mongodb server
@@ -22,6 +27,11 @@ because ejdb does not support self app_id, so i have to change the job_id in mon
 
 
 mongodb remeber to close db after reach the funciton, otherwise it will meet connection error. check out on server side
+
+https://github.com/joyent/node/issues/4863 request is not always the best in this case. So I have to use local http request. 
+
+
+scrape on amazon website, it is better to add a / in the end of url: for example, `http://www.amazon.com/mobile-apps/b/ref=mas_dl?ie=UTF8&node=2350149011/`
 
 
 
