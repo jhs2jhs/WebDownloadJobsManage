@@ -11,8 +11,9 @@ Download Web for purpose
 5. design a protocol chart 
 6. common error: 'http encode, check / in the end of url'
 7. job manager need to add path automatically, in the folder. 
-8. job manager need to change the time duration for download, automatically. 
+8. job manager need to change the time duration for download, automatically. it looks like this duration is difficult to set up, as it is difficult to know the exact time, as there is no way to know that the website is starts to block or not. so this duration should be fully tested in advanced.  
 9. job manager needs to know if the client is dead or not. 
+10. jobs manager should be able to know the serious errors, jobs client should be able to report all the necessary errors. 
 
 ## done: 
 1. python db_insert_row.py to insert db from local db into mongodb server
@@ -33,6 +34,11 @@ https://github.com/joyent/node/issues/4863 request is not always the best in thi
 
 scrape on amazon website, it is better to add a / in the end of url: for example, `http://www.amazon.com/mobile-apps/b/ref=mas_dl?ie=UTF8&node=2350149011/`
 
+
+#### jobs_settings:
+1. `http://localhost:8080/web_jobs/jobs_settings?settings_action=`
+2. `http://localhost:8080/web_jobs/jobs_settings?settings_action=get&job_target=appid_to_asin&client_id=dtc&settings_key=web_access_interval`
+3. 
 
 
 ## Development Environment setting up:

@@ -4,6 +4,7 @@ var myconfig = require('./CONFIG.js');
 var request = require('request');
 var http = require('http');
 var mkdirp = require('mkdirp');
+var colors = require('colors');
 
 // http proxy (https does not need proxy setting) in Nottingham university 
 // https://github.com/jianhuashao/AndroidAppsCollector/blob/master/http.py
@@ -74,7 +75,7 @@ function request_get_http(vars, resp_callback, err_callback){
 		});
 	});
 	req.on('error', function(e){
-		console.error('request_get_http : ', e.message, e)
+		console.error('request_get_http: '.red.bold, e.message, e);
 		err_callback(e.message, vars)
 	});
 	req.end()
@@ -91,6 +92,13 @@ function folder_init(my_job_target){
 }
 
 
+function log(){
+
+}
+function error(str){
+	console.log('')
+}
+
 module.exports.request_get_ec2 = request_get_ec2;
 module.exports.request_post_ec2 = request_post_ec2;
 module.exports.request_get_http = request_get_http;
@@ -102,4 +110,12 @@ module.exports.job_status_figure = {
 	'assigned': 2,
 	'done': 3,
 	'error_when_reading': 4
+};
+module.exports.jobs_settings_keys = {
+	'web_access_interval': 'web_access_interval',
+}
+module.exports.jobs_settings_actions = {
+	'setting': 'setting',
+	'get': 'get',
+	'view': 'view'
 }
