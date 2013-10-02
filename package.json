@@ -12,6 +12,7 @@
 		"request":"*",
 		"tingodb":"*",
 		"mkdirp":"*",
-		"colors":"*"
+		"colors":"*",
+		"dict":"*"
 	}
 }

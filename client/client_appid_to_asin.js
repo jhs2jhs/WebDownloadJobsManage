@@ -1,7 +1,12 @@
+//var dict = require('dict');
+
+
 ///////// configuration start ///////////
-var my_client_job_request_count = 5
 var my_job_target = 'appid_to_asin'
-global.web_access_interval = 5000; // how long wait for next web visit, set this to prevent blocking from IP. 
+global.job_settings = {
+	'client_job_request_count': 5, 
+	'web_access_interval': 5000, // how long wait for next web visit, set this to prevent blocking from IP. 
+};
 ///////// configuration end ///////////
 
 
@@ -18,26 +23,29 @@ myutil.folder_init(my_job_target);
 
 
 
+
+/////////
 function client_jobs_settings_get(){
 	url_query = querystring.stringify({
-		'settings_action':myutil.jobs_settings_actions.get,
-		'client_id':myconfig.my_client_id, 
-		'settings_key':myutil.jobs_settings_keys.web_access_interval,
-		'job_target': my_job_target
+		'settings_action':myutil.jobs_settings_actions.view
 	});
 	uri = myconfig.job_server_address+'/jobs_settings?'+url_query;
 	var vars = {uri:uri};
-	console.log('** client_jobs_settings_get', vars.uri)
+	console.log('** client_jobs_settings_get', vars.uri);
 	myutil.request_get_ec2(vars, client_jobs_settings_get_resp_callback, client_jobs_settings_get_err_callback);
 }
-
 function client_jobs_settings_get_resp_callback(http_statusCode, vars, resp, body){
 	var jobs_settings = JSON.parse(body);
-	if (jobs_settings.settings_value != undefined & parseInt(jobs_settings.settings_value) != 1) {
-		global.web_access_interval = parseInt(jobs_settings.settings_value);
-		console.log('web_access_interval'.yellow.underline, global.web_access_interval);
-		client_jobs_control('jobs_settings_get_done');
+	for (var i = 0; i < jobs_settings.length; i++ ){
+		var jobs_setting = jobs_settings[i];
+		if (jobs_setting.job_target == my_job_target) {
+			global.job_settings[jobs_setting['settings_key']] = parseInt(jobs_setting['settings_value']);
+			//global.settings.set(jobs_setting['settings_key'], parseInt(jobs_setting['settings_value']));
+			//console.error("client_jobs_settings_get_err_callback parseInt".red.bold);
+		}
 	}
+	console.log(global.job_settings)
+	client_jobs_control('jobs_settings_get_done');
 }
 function client_jobs_settings_get_err_callback(http_statusCode, vars, resp, body){
 	console.error("client_jobs_settings_get_err_callback".red.bold, http_statusCode)
@@ -204,7 +212,7 @@ function client_job_do_update(job, http_statusCode, job_status){
 			client_jobs_control('jobs_do_error');
 			return
 		} else {
-			setTimeout(client_jobs_do, global.web_access_interval);
+			setTimeout(client_jobs_do, global.settings.web_access_interval);
 		}
 		/*
 		ejdb.find(my_job_target, {_id: job._id}, function(err, cursor, count){
