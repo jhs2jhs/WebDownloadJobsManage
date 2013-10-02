@@ -13,6 +13,8 @@ console.log(myutil.my_client_db_file_path);
 var ejdb = EJDB.open(myutil.my_client_db_file_path, EJDB.DEFAULT_OPEN_MODE);
 var http = require('http');
 var fs = require('fs');
+myutil.folder_init(my_job_target);
+
 
 //////// jobs_get
 function client_jobs_get(){
@@ -225,4 +227,5 @@ function main(){
 	client_jobs_init();
 }
 
-main()
+//main()
+//fold_init()
