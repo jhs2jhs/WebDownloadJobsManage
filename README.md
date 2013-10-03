@@ -14,8 +14,14 @@ Download Web for purpose
 8. job manager need to change the time duration for download, automatically. it looks like this duration is difficult to set up, as it is difficult to know the exact time, as there is no way to know that the website is starts to block or not. so this duration should be fully tested in advanced.  
 9. job manager needs to know if the client is dead or not. 
 10. jobs manager should be able to know the serious errors, jobs client should be able to report all the necessary errors. 
+11. figure 
+13. client side needs to have configuration setting automatically. 
+14. server side needs to pass the configuration setting automatically. 
+15. 
 
-## done: 
+## done:
+12. figure out the proxy issue. 
+ 
 1. python db_insert_row.py to insert db from local db into mongodb server
 2. http://localhost:8080/web_jobs/jobs_get?client_id=dtc&client_job_request_count=10&job_target=appid_to_asin to get a list jobs. 
 3. 

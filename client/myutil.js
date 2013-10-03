@@ -8,6 +8,7 @@ var colors = require('colors');
 
 // http proxy (https does not need proxy setting) in Nottingham university 
 // https://github.com/jianhuashao/AndroidAppsCollector/blob/master/http.py
+// http://www.velocityreviews.com/forums/t325113-httplib-and-proxy.html
 
 function request_get_ec2(vars, resp_callback, err_callback){
 	var r_options = {
@@ -64,7 +65,18 @@ function request_post_ec2(vars, resp_callback, err_callback){
 
 ///////////////////////////////////////////////////
 function request_get_http(vars, resp_callback, err_callback){
-	var req = http.request(vars.uri, function(resp){
+	var req_options = null;
+	if (myconfig.proxy_settings.proxy_using == true){
+		req_options = {
+			'hostname': myconfig.proxy_settings.proxy_hostname,
+			'port':myconfig.proxy_settings.proxy_port,
+			'path': vars.uri,
+			'method': 'GET'
+		}
+	} else {
+		req_options = vars.uri;
+	}
+	var req = http.request(req_options, function(resp){
 		var body = ''
 		resp.setEncoding('utf8');
 		resp.on('data', function (chunk) { // this event is called everytime when transform data

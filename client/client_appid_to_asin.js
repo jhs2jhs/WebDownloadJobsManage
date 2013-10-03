@@ -57,7 +57,7 @@ function client_jobs_settings_get_err_callback(http_statusCode, vars, resp, body
 function client_jobs_get(){
 	url_query = querystring.stringify({
 		'client_id':myconfig.my_client_id, 
-		'client_job_request_count':my_client_job_request_count,
+		'client_job_request_count':global.job_settingsclient_job_request_count,
 		'job_target': my_job_target
 	});
 	uri = myconfig.job_server_address+'/jobs_get?'+url_query;
@@ -212,7 +212,7 @@ function client_job_do_update(job, http_statusCode, job_status){
 			client_jobs_control('jobs_do_error');
 			return
 		} else {
-			setTimeout(client_jobs_do, global.settings.web_access_interval);
+			setTimeout(client_jobs_do, global.job_settings.web_access_interval);
 		}
 		/*
 		ejdb.find(my_job_target, {_id: job._id}, function(err, cursor, count){
@@ -269,3 +269,6 @@ function main(){
 
 main()
 //client_jobs_settings_get()
+
+
+//myutil.request_get_http({uri:'http://www.google.com'}, function(){}, function(){})

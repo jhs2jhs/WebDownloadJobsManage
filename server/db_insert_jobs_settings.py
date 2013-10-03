@@ -10,7 +10,8 @@ collection = db['jobs_settings']
 print collection
 
 job_settings = [
-	{'job_target':'appid_to_asin', 'settings_key':'web_access_interval', 'settings_value':'5000'}
+	{'job_target':'appid_to_asin', 'settings_key':'web_access_interval', 'settings_value':'5000'},
+	{'job_target':'appid_to_asin', 'settings_key':'client_job_request_count', 'settings_value':'10'}
 ]
 
 def job_settings_init():
