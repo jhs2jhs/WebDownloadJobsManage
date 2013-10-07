@@ -91,7 +91,7 @@ function request_get_http(vars, resp_callback, err_callback){
 	});
 	req.on('error', function(e){
 		console.error('request_get_http: '.red.bold, e.message, e);
-		err_callback(e.message, vars)
+		err_callback(e, vars)
 	});
 	req.end()
 }
@@ -134,3 +134,4 @@ module.exports.jobs_settings_actions = {
 	'get': 'get',
 	'view': 'view'
 }
+module.exports.http = http;

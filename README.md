@@ -5,6 +5,12 @@ Download Web for purpose
 
 #### todo today
 1. clients needs to restart, and server needs to report client's position automatically. 
+
+plan to use cluster module to restart process automaticallly, however, ejdb does not support multiple process, so it has to rely on single process for each task. 
+
+
+2
+. run domain, waiting for error, if error happend, rerun the program for 20 times, if fixed, then reset the count back to 0, otherwise, it will stoped. 
 2. server needs to have results report, and send email out everyday or everytime, when error happened. 
 3. server sides, client, how to start jobs automatically. it needs to check how many steps are running int he jobs managers. but if client is strong enough, it only needs to start automatically. 
 4. clients needs to send the error log into servers. 

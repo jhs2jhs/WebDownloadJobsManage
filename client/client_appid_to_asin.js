@@ -9,17 +9,65 @@ global.job_settings = {
 };
 ///////// configuration end ///////////
 
-
+console.log('start')
 
 var myconfig = require('./CONFIG.js');
 var myutil = require('./myutil.js')
 var querystring = require('querystring');
 var EJDB = require('ejdb');
 console.log(myutil.my_client_db_file_path);
+console.log('end1')
 var ejdb = EJDB.open(myutil.my_client_db_file_path, EJDB.DEFAULT_OPEN_MODE);
-var http = require('http');
+ejdb.close();
+console.log('end')
+//var http = require('http');
 var fs = require('fs');
 myutil.folder_init(my_job_target);
+//var domain = require('domain');
+
+
+console.time('hello');
+console.log('world')
+/*
+var cluster = require('cluster');
+var workers = process.env.WORKERS || require('os').cpus.length;
+var workers = 2
+console.log(workers);
+if (cluster.isMaster) {
+	console.log('== start cluster with %s workers'.yellow, workers);
+	for (var i = 0; i < workers; i++) {
+		var worker = cluster.fork().process;
+		console.log('worker %s started.'.yellow, worker.pid);
+	}
+	cluster.on('disconnect', function(worker){
+		console.log('== worker %s died, restart ...'.yellow, worker.process.pid);
+		var worker = cluster.fork().process;
+		console.log('worker %s restarted.'.yellow, worker.pid);
+	});
+} else {
+	console.log('dd');
+var d = domain.create(); // create a top-level domain for the service. 
+d.add(ejdb);
+d.add(myutil.http);
+console.log('ddddd');
+//d.add(this);
+//d.add(myutil);
+d.on('error', function(e){
+	console.error('== domain error catched ==');
+	cluster.worker.disconnect();
+});
+d.run(function(){
+	console.log('== domain start to run =='.yellow.bold)
+	fs.readFile(hello, function(){
+		return cb;
+	})
+	//main();
+	
+});
+
+}
+*/
+
 
 
 
@@ -193,8 +241,12 @@ function client_jobs_do_resp_callback(http_statusCode, vars, resp, body){
 }
 
 function client_jobs_do_err_callback(error, vars){
-	if (error == 'Parse Error') {
+	if (error.message == 'Parse Error') {
 		// this error can be ignored
+		console.log('this error can be ignored======');
+		//d.emit('error');
+		//throw error;
+		throw new Error('error hello error');
 	} else {
 		// err would already set -1 for http_status in db
 		client_job_do_update(vars.job, -1, myutil.job_status_figure.error_when_reading);
@@ -267,8 +319,10 @@ function main(){
 	client_jobs_init();
 }
 
-main()
+//main()
 //client_jobs_settings_get()
 
 
 //myutil.request_get_http({uri:'http://www.google.com'}, function(){}, function(){})
+
+
