@@ -10,7 +10,6 @@ var eventEmitter = new events.EventEmitter();
 
 
 ///////////////////////////////////////////////////
-module.exports.request_get_ec2 = request_get_ec2;
 module.exports.request_post_ec2 = request_post_ec2;
 module.exports.request_get_http = request_get_http;
 module.exports.folder_init = folder_init;
@@ -40,31 +39,6 @@ module.exports.http = http;
 
 
 // better to figure out the proxy issue here for amazon_ec2, as well. 
-
-function request_get_ec2(vars, resp_callback, err_callback){
-	var r_options = {
-		uri: vars.uri,
-		method: 'GET',
-		timeout: 20000,
-		maxRedirects: 10,
-		followRedirect: false, // to avoid jump to home page
-		proxy: myconfig.my_http_proxy,
-		qs: {},
-		headers: {'Accept': 'text/html'}
-	}
-	var request_function = function(error, resp, body){
-		if (error){
-			err_callback(-1, vars, resp, body)
-		} else if (resp.statusCode == 200) { // working well
-			resp_callback(resp.statusCode, vars, resp, body)
-		} else if (resp.statusCode == 302) { // redirect 
-			err_callback(resp.statusCode, vars, resp, body)
-		} else {
-			err_callback(resp.statusCode, vars, resp, body)
-		}
-	}
-	request(r_options, request_function);
-}
 
 function request_post_ec2(vars, resp_callback, err_callback){
 	var r_options = {
