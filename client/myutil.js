@@ -10,6 +10,9 @@ var colors = require('colors');
 // https://github.com/jianhuashao/AndroidAppsCollector/blob/master/http.py
 // http://www.velocityreviews.com/forums/t325113-httplib-and-proxy.html
 
+
+// better to figure out the proxy issue here for amazon_ec2, as well. 
+
 function request_get_ec2(vars, resp_callback, err_callback){
 	var r_options = {
 		uri: vars.uri,
