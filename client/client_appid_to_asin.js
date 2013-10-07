@@ -16,18 +16,29 @@ var myutil = require('./myutil.js')
 var querystring = require('querystring');
 var EJDB = require('ejdb');
 console.log(myutil.my_client_db_file_path);
-console.log('end1')
 var ejdb = EJDB.open(myutil.my_client_db_file_path, EJDB.DEFAULT_OPEN_MODE);
-ejdb.close();
-console.log('end')
-//var http = require('http');
 var fs = require('fs');
 myutil.folder_init(my_job_target);
 //var domain = require('domain');
+var events = require('events');
+var eventEmitter = new events.EventEmitter();
+eventEmitter.on('hello', function(){
+	console.log('hhhhhhhh');
+});
 
+/*
 
 console.time('hello');
-console.log('world')
+for (var i = 0; i<10000; i++){
+	console.log(i);
+}
+//console.timeEnd('hello')
+for (var i = 0; i<10000; i++){
+	console.log(i);
+}
+console.timeEnd('hello');
+//console.trace('hello')
+*/
 /*
 var cluster = require('cluster');
 var workers = process.env.WORKERS || require('os').cpus.length;
@@ -68,40 +79,61 @@ d.run(function(){
 }
 */
 
+main();
+eventEmitter.on('http_connect_wrong_status', function(job_step, http_statusCode){
+	console.error("ERROR: client_%s_get_resp_callback".red.bold, job_step, http_statusCode)
+	switch(job_step) {
+		case 'jobs_settings':
+	}
+});
+eventEmitter.on('http_connect_error', function(job_step, e){
+	console.error("ERROR: client_%s_get_err_callback".red.bold, job_step, http_statusCode, e)
+	switch(job_step) {
+		case '':
+	}
+});
+eventEmitter.on('job_step_done', function(job_step){
+	console.log("DONE: %s".red.bold, job_step)
+	switch(job_step) {
+		case '':
+	}
+});
 
+function http_connect_error(e, vars){
+	eventEmitter.emit('http_connect_error', vars.job_step, e);
+}
 
-
-
-/////////
+///////////////////////
+///////// jobs_settings
+///////////////////////
 function client_jobs_settings_get(){
 	url_query = querystring.stringify({
 		'settings_action':myutil.jobs_settings_actions.view
 	});
 	uri = myconfig.job_server_address+'/jobs_settings?'+url_query;
-	var vars = {uri:uri};
+	var vars = {uri:uri, job_step:'jobs_settings'};
 	console.log('** client_jobs_settings_get', vars.uri);
-	myutil.request_get_ec2(vars, client_jobs_settings_get_resp_callback, client_jobs_settings_get_err_callback);
+	myutil.request_get_http(vars, client_jobs_settings_get_resp_callback, http_connect_error);
 }
 function client_jobs_settings_get_resp_callback(http_statusCode, vars, resp, body){
+	if (http_statusCode != 200) {
+		EventEmitter.emit('http_connect_wrong_status', vars.job_step, http_statusCode);
+		return
+	}
 	var jobs_settings = JSON.parse(body);
 	for (var i = 0; i < jobs_settings.length; i++ ){
 		var jobs_setting = jobs_settings[i];
 		if (jobs_setting.job_target == my_job_target) {
 			global.job_settings[jobs_setting['settings_key']] = parseInt(jobs_setting['settings_value']);
-			//global.settings.set(jobs_setting['settings_key'], parseInt(jobs_setting['settings_value']));
-			//console.error("client_jobs_settings_get_err_callback parseInt".red.bold);
 		}
 	}
 	console.log(global.job_settings)
-	client_jobs_control('jobs_settings_get_done');
-}
-function client_jobs_settings_get_err_callback(http_statusCode, vars, resp, body){
-	console.error("client_jobs_settings_get_err_callback".red.bold, http_statusCode)
-	client_jobs_control('jobs_settings_get_error');
+	eventEmitter.emit('job_step_done', vars.job_step);
 }
 
-
+///////////////////////
 //////// jobs_get
+///////////////////////
 function client_jobs_get(){
 	url_query = querystring.stringify({
 		'client_id':myconfig.my_client_id, 

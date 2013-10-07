@@ -8,6 +8,9 @@ Download Web for purpose
 
 plan to use cluster module to restart process automaticallly, however, ejdb does not support multiple process, so it has to rely on single process for each task. 
 
+console.time(label)
+console.timeEnd(label): can be used to measure the timedifference. 
+
 
 2
 . run domain, waiting for error, if error happend, rerun the program for 20 times, if fixed, then reset the count back to 0, otherwise, it will stoped. 
@@ -26,7 +29,7 @@ plan to use cluster module to restart process automaticallly, however, ejdb does
 8. job manager need to change the time duration for download, automatically. it looks like this duration is difficult to set up, as it is difficult to know the exact time, as there is no way to know that the website is starts to block or not. so this duration should be fully tested in advanced.  
 9. job manager needs to know if the client is dead or not. 
 10. jobs manager should be able to know the serious errors, jobs client should be able to report all the necessary errors. 
-15. 
+15. simplify http_get_or_post method, to keep it simply. 
 
 ## done:
 12. figure out the proxy issue. 
