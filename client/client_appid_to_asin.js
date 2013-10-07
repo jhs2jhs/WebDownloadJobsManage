@@ -197,7 +197,7 @@ function client_jobs_get(){
 	console.log('================ jobs_get ==========================='.blue.italic);
 	url_query = querystring.stringify({
 		'client_id':myconfig.my_client_id, 
-		'client_job_request_count':global.job_settingsclient_job_request_count,
+		'client_job_request_count':global.job_settings.client_job_request_count,
 		'job_target': my_job_target
 	});
 	uri = myconfig.job_server_address+'/jobs_get?'+url_query;
@@ -300,8 +300,11 @@ function client_jobs_put_err_callback(http_statusCode, vars, resp, body){
 ///////////////////////
 ////////// jobs_do 
 ///////////////////////
-function client_jobs_do () {
+function client_jobs_do(){
 	console.log('================ jobs_do ==========================='.blue.italic);
+	client_jobs_do_single();
+}
+function client_jobs_do_single () {
 	ejdb.findOne(my_job_target, {'job_status': {$lte: myutil.job_status_figure.unread}}, function(err, obj) {
 		if (err) {
 			eventEmitter.emit('ejdb_error', 'jobs_do');
@@ -309,7 +312,7 @@ function client_jobs_do () {
 		}
 		if (obj == null) {
 			// next job, no object founded
-			console.error('== client_jobs_do'.yello.bold, "count == 0");
+			console.error('== client_jobs_do_single'.yello.bold, "count == 0");
 			eventEmitter.emit('job_step_done', 'jobs_do');
 		} else {
 			client_jobs_do_download(obj);
@@ -354,7 +357,7 @@ function client_job_do_update(job, http_statusCode, job_status){
 			eventEmitter.emit('ejdb_error', vars.job_step);
 			return
 		} else {
-			setTimeout(client_jobs_do, global.job_settings.web_access_interval);
+			setTimeout(client_jobs_do_single, global.job_settings.web_access_interval);
 			return
 		}
 	});
