@@ -1,10 +1,13 @@
+// configuration needs to be done in each client instance file. 
+
+
 ///////// configuration start ///////////
 //global.my_job_target = 'appid_to_asin'; 
-global.job_settings = {
-	'client_job_request_count': 10, 
-	'web_access_interval': 5000, // how long wait for next web visit, set this to prevent blocking from IP. 
-	'connection_try_max': 20,
-};
+//global.job_settings = {
+//	'client_job_request_count': 10, 
+//	'web_access_interval': 5000, // how long wait for next web visit, set this to prevent blocking from IP. 
+//	'connection_try_max': 20,
+//};
 ///////// configuration end ///////////
 
 /////////
