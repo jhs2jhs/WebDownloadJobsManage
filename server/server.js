@@ -34,7 +34,7 @@ var job_status_figure = {
 
 //////// jobs_get /////////////
 function jobs_get(req, res) {
-	console.log('jobs_get'.blue.italic);
+	console.log('jobs_get'.blue.italic, req.query.job_target, req.query.client_id);
 	qs = req.query;
 	client_id = qs.client_id;
 	client_job_request_count = qs.client_job_request_count;
@@ -84,7 +84,7 @@ function jobs_get(req, res) {
 
 /////////// jobs_put ////////////
 function jobs_put(req, res) {
-	console.log('jobs_put'.blue.italic)
+	console.log('jobs_put'.blue.italic, req.query.job_target, req.query.client_id)
 	qs = req.body;
 	client_id = qs.client_id;
 	job_target = qs.job_target;

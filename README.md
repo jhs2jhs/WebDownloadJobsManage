@@ -11,6 +11,8 @@ plan to use cluster module to restart process automaticallly, however, ejdb does
 console.time(label)
 console.timeEnd(label): can be used to measure the timedifference. 
 
+http_post, needs to improved. 
+
 
 2
 . run domain, waiting for error, if error happend, rerun the program for 20 times, if fixed, then reset the count back to 0, otherwise, it will stoped. 

@@ -1,5 +1,5 @@
 ///////// configuration start ///////////
-global.my_job_target = 'appid_to_asin'
+global.my_job_target = 'thingiverse'
 global.job_settings = {
 	'client_job_request_count': 5, 
 	'web_access_interval': 5000, // how long wait for next web visit, set this to prevent blocking from IP. 
