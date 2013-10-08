@@ -210,10 +210,24 @@ function jobs_settings(req, res){
 }
 
 
+function jobs_view(req, res){
+	qs = req.query;
+	db_opt(function(db){
+		db.collections(function(err, collections){
+			for (var i = 1; i< collections.length; i++){
+				collection = collections[i];
+				//console.dir(collection);
+				console.log(collection.collectionName);
+			}
+		});
+	})
+}
+
+
 app.use(express.bodyParser());
 app.get('/hello', hello);
 app.get('/web_jobs/jobs_get', jobs_get);
-//app.get('/web_jobs/jobs_view', jobs_view);
+app.get('/web_jobs/jobs_view', jobs_view);
 //app.get('/web_jobs/jobs_reset', jobs_reset);
 //app.get('/web_jobs/jobs_backup_export', jobs_export);
 //app.post('/web_jobs/jobs_backup_import', jobs_import);

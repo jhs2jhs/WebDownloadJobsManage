@@ -42,7 +42,12 @@ eventEmitter.on('jobs_get_no_more_job', function(){
 	}
 });
 eventEmitter.on('http_connect_wrong_status', function(job_step, http_statusCode){
-	console.error("ERROR: client_%s_get_resp_callback".red.bold, job_step, http_statusCode)
+	console.error("ERROR: client_%s_get_resp_callback".red.bold, job_step, http_statusCode);
+	i_tries ++;
+	if (i_tries > global.job_settings.connection_try_max) {
+		console.log('tried: ', i_tries);
+		return
+	}
 	switch(job_step) {
 		case 'jobs_settings':
 			client_jobs_get();
@@ -65,6 +70,11 @@ function http_connect_error(e, vars){
 }
 eventEmitter.on('http_connect_error', function(job_step, e){
 	console.error("ERROR: client_%s_get_err_callback".red.bold, job_step, e)
+	i_tries ++;
+	if (i_tries > global.job_settings.connection_try_max) {
+		console.log('tried: ', i_tries);
+		return
+	}
 	switch(job_step) {
 		case 'jobs_settings':
 			client_jobs_get();
@@ -105,6 +115,11 @@ eventEmitter.on('job_step_done', function(job_step){
 });
 eventEmitter.on('ejdb_error', function(job_step){
 	console.error("ERROR: ejdb, %s".red.bold, job_step)
+	i_tries ++;
+	if (i_tries > global.job_settings.connection_try_max) {
+		console.log('tried: ', i_tries);
+		return
+	}
 	switch(job_step) {
 		case 'jobs_settings':
 			client_jobs_get();
@@ -226,7 +241,7 @@ function client_jobs_put_request(jobs) {
 	uri = myconfig.job_server_address+'/jobs_put';
 	var vars = {uri:uri, post_json: post_json};
 	console.log('** client_jobs_put_request', vars.uri, jobs.length)
-	myutil.request_post_ec2(vars, client_jobs_put_resp_callback, client_jobs_put_err_callback);
+	myutil.request_post_ec2(vars, client_jobs_put_resp_callback, http_connect_error);
 }
 
 function client_jobs_put_resp_callback(http_statusCode, vars, resp, body){
@@ -255,11 +270,12 @@ function client_jobs_bulk_remove(jobs, i){
 	}
 }
 
+/*
 function client_jobs_put_err_callback(http_statusCode, vars, resp, body){
 	console.error('client_jobs_put_err_callback'.red.bold, http_statusCode);
 	client_jobs_control('jobs_put_error');
 }
-
+*/
 
 ///////////////////////
 ////////// jobs_do 
