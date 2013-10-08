@@ -64,7 +64,7 @@ function http_connect_error(e, vars){
 	eventEmitter.emit('http_connect_error', vars.job_step, e);
 }
 eventEmitter.on('http_connect_error', function(job_step, e){
-	console.error("ERROR: client_%s_get_err_callback".red.bold, job_step, http_statusCode, e)
+	console.error("ERROR: client_%s_get_err_callback".red.bold, job_step, e)
 	switch(job_step) {
 		case 'jobs_settings':
 			client_jobs_get();
@@ -204,7 +204,7 @@ function client_jobs_put(){
 		if (count == 0) {
 			// next job
 			console.error('jobs_put'.red.bold, "count == 0");
-			client_jobs_control('jobs_put_none');
+			eventEmitter.emit('job_step_done', 'jobs_put');
 			return;
 		}
 		jobs = []
