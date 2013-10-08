@@ -6,7 +6,7 @@ module.exports.my_http_proxy = '';
 
 // proxy configuration
 module.exports.proxy_settings = {
-	'proxy_using': false,
+	'proxy_using': true,
 	'proxy_hostname': '128.243.46.53',
 	'proxy_port': '3128'
 }

@@ -37,15 +37,16 @@ eventEmitter.on('jobs_get_no_more_job', function(){
 	// needs to see if needs to finish the jobs. 
 	console.error("FINISH: jobs_get_no_more_job".blue.bold)
 	i_tries ++;
+	console.log('tried: '.yellow, i_tries);
 	if (i_tries > global.job_settings.connection_try_max) {
-		console.log('tried: ', i_tries);
+		return
 	}
 });
 eventEmitter.on('http_connect_wrong_status', function(job_step, http_statusCode){
 	console.error("ERROR: client_%s_get_resp_callback".red.bold, job_step, http_statusCode);
 	i_tries ++;
+	console.log('tried: '.yellow, i_tries);
 	if (i_tries > global.job_settings.connection_try_max) {
-		console.log('tried: ', i_tries);
 		return
 	}
 	switch(job_step) {
@@ -71,8 +72,8 @@ function http_connect_error(e, vars){
 eventEmitter.on('http_connect_error', function(job_step, e){
 	console.error("ERROR: client_%s_get_err_callback".red.bold, job_step, e)
 	i_tries ++;
+	console.log('tried: '.yellow, i_tries);
 	if (i_tries > global.job_settings.connection_try_max) {
-		console.log('tried: ', i_tries);
 		return
 	}
 	switch(job_step) {
@@ -96,28 +97,47 @@ eventEmitter.on('job_step_done', function(job_step){
 	i_tries = 0;
 	console.log("DONE: %s".blue.italic, job_step)
 	switch(job_step) {
-		case 'jobs_settings':
-			client_jobs_get();
-			break
-		case 'jobs_get':
-			client_jobs_do();
-			break
 		case 'jobs_do':
 			client_jobs_put();
 			break
+		case 'jobs_settings':
+			i_tries = 0;
+			client_jobs_get();
+			break
+		case 'jobs_get':
+			i_tries = 0;
+			client_jobs_do();
+			break
 		case 'jobs_init':
 		case 'jobs_put':
+			i_tries = 0;
 			client_jobs_settings_get();
 			break
 		default:
 			client_jobs_settings_get();
 	}
 });
+eventEmitter.on('jobs.length=0', function(job_step){
+	console.log("jobs.length=0: %s".blue.italic, job_step)
+	i_tries ++;
+	console.log('tried: '.yellow, i_tries);
+	if (i_tries > global.job_settings.connection_try_max) {
+		eturn
+	}
+	switch(job_step){
+		case 'jobs_do':
+			client_jobs_put();
+			break;
+		case 'jobs_put':
+			client_jobs_settings_get();
+			break;
+	}		
+});
 eventEmitter.on('ejdb_error', function(job_step){
 	console.error("ERROR: ejdb, %s".red.bold, job_step)
 	i_tries ++;
+	console.log('tried: '.yellow, i_tries);
 	if (i_tries > global.job_settings.connection_try_max) {
-		console.log('tried: ', i_tries);
 		return
 	}
 	switch(job_step) {
@@ -154,7 +174,7 @@ function client_jobs_settings_get(){
 }
 function client_jobs_settings_get_resp_callback(http_statusCode, vars, resp, body){
 	if (http_statusCode != 200) {
-		EventEmitter.emit('http_connect_wrong_status', vars.job_step, http_statusCode);
+		eventEmitter.emit('http_connect_wrong_status', vars.job_step, http_statusCode);
 		return
 	}
 	var jobs_settings = JSON.parse(body);
@@ -186,7 +206,7 @@ function client_jobs_get(){
 
 function client_jobs_get_resp_callback(http_statusCode, vars, resp, body){
 	if (http_statusCode != 200) {
-		EventEmitter.emit('http_connect_wrong_status', vars.job_step, http_statusCode);
+		eventEmitter.emit('http_connect_wrong_status', vars.job_step, http_statusCode);
 		return
 	}
 	var jobs = JSON.parse(body);
@@ -248,7 +268,7 @@ function client_jobs_put_resp_callback(http_statusCode, vars, resp, body){
 	jobs = body
 	if (jobs.length == 0){
 		console.error('client_jobs_put_resp_callback'.red.bold, 'jobs.length == 0')
-		client_jobs_control('jobs_put_error');
+		eventEmitter.emit('jobs.length=0', 'jobs_put');
 	} else {
 		client_jobs_bulk_remove(jobs, 0);
 	}
@@ -293,7 +313,8 @@ function client_jobs_do_single () {
 		if (obj == null) {
 			// next job, no object founded
 			console.error('== client_jobs_do_single'.yellow.bold, "count == 0");
-			eventEmitter.emit('job_step_done', 'jobs_do');
+			//eventEmitter.emit('job_step_done', 'jobs_do');
+			eventEmitter.emit('jobs.length=0', 'jobs_do');
 		} else {
 			client_jobs_do_download(obj);
 		}
@@ -307,6 +328,7 @@ function client_jobs_do_download(job){
 }
 
 function client_jobs_do_resp_callback(http_statusCode, vars, resp, body){
+	console.log(http_statusCode);
 	fs.writeFile(vars.job_file_path, body, function(err){
 		if (err) {
 			eventEmitter.emit('ejdb_error', vars.job_step);
