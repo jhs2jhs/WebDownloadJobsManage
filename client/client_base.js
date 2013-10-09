@@ -232,9 +232,8 @@ function client_jobs_put(){
 	console.log('================ jobs_put ==========================='.blue.italic);
 	ejdb.find(global.my_job_target, {}, function(err, cursor, count) {
 		if (err) {
-			console.error('client_jobs_put'.red.bold, 'ejdb', err);
-			client_jobs_control('jobs_put_error');
-			return;
+			eventEmitter.emit('ejdb_error', 'jobs_put');
+				return
 		}
 		if (count == 0) {
 			// next job
@@ -279,7 +278,8 @@ function client_jobs_bulk_remove(jobs, i){
 		ejdb.remove(global.my_job_target, jobs[i]._id, function(err){
 			if (err) {
 				console.error('client_jobs_bulk_remove'.red.bold, 'ejdb.remove');
-				client_jobs_control('jobs_put_error');
+				eventEmitter.emit('ejdb_error', 'jobs_put');
+				return
 			} else {
 				i = i + 1
 				client_jobs_bulk_remove(jobs, i);

@@ -1,26 +1,67 @@
 WebDownloadJobsManage
 =====================
 
-Download Web for purpose
+find all the baby music, put it into ipod and also burn a disk, so I can play it for mingye in the car and when wake up
+buy ram
 
-#### todo today
-1. clients needs to restart, and server needs to report client's position automatically. 
+This is a complete solution to download website for scraping in a easy-to-do fashion. It involves a download jobs manager on server sides and a number of workers as client to communicate to the server to conduct the actual downloading jobs. 
 
-plan to use cluster module to restart process automaticallly, however, ejdb does not support multiple process, so it has to rely on single process for each task. 
+## why this software solution:
+1. did you need to frequently scrpae website or download online resources like website?
+2. did you find a single scraping software is too slow to finish your scrape jobs?
+3. did you find error wheter you run your scrape software, and you are regret not save websites for error recovery?
+4. did you find write software to scrape is too much learning step for you, as you are programming background?
+5. 
 
-console.time(label)
-console.timeEnd(label): can be used to measure the timedifference. 
 
-http_post, needs to improved. 
+## what is a job:
+a_job = {job_id, job_url, job_file_path, job_status, client_id}
+
+1. job_id: a unique id for a job
+2. job_url: actual web address to download from
+3. job_file_path: tell where the downloaded website to saved. 
+4. job_stauts: whether it is just created, be assign to a worker or done
+5. client_id: it only knows which worker created the job or who it assigned to or who done the job. 
+
+## work flow:
+
+#### create jobs (pre):
+1. create a list of jobs and save them on the job_manager, so that job_worker can fetch later to conduct in next step. 
+2. job can dynamically created when executing, but not recommaneded. better to do after process results. 
+3. each job has a job_id, so job can be updated based on job_id.
+4. can write a python or other code to push job into job_manager. can also use a excel to create a file with all jobs and then read and push to the job_manager. see detailed example later. 
+
+#### conduct jobs (during):
+1. job_worker will connect to job_manager to get a list of job to do
+2. job_work will save the download website into a file in job_work's local computer. those saved downloaded file can be revisited later. 
+3. this step will automaticaly happened with this software. 
+4. normally only need one job_manager, but the number of job_workers can be as mang as want to speed up and distribtue.
+
+#### process results (post):
+1. now all the website has been downloaded and saved into local computer, so can write python code or other code to execute jobs step by step. 
+2. processing can be redone if any error happend, so it is extreme helpful to develop a comprehensive results. 
 
 
-2
-. run domain, waiting for error, if error happend, rerun the program for 20 times, if fixed, then reset the count back to 0, otherwise, it will stoped. 
-2. server needs to have results report, and send email out everyday or everytime, when error happened. 
-3. server sides, client, how to start jobs automatically. it needs to check how many steps are running int he jobs managers. but if client is strong enough, it only needs to start automatically. 
-4. clients needs to send the error log into servers. 
+## components: 
+##### jobs_manager (server): 
+1. record a list of jobs needs to do and already done. 
+2. control how jobs_worker can conduct the downloading jobs. 
+3. report the progress of jobs conduction in email back to people who are wathcing on
+4. provide a web interface as central place to view the jobs
+
+#### jobs_worker (client):
+1. communicate to jobs_manager over http protocol to fetch jobs to do.
+2. conduct the job be assiged to self. 
+3. report back the jobs results back to jobs_manager. 
+4. allow jobs_manager to control on how to conduct the jobs. 
+
 
 ## todo
+http_post, needs to improved. 
+4. clients needs to send the error log into servers. 
+server sides, client, how to start jobs automatically. it needs to check how many steps are running int he jobs managers. but if client is strong enough, it only needs to start automatically. 
+server needs to have results report, and send email out everyday or everytime, when error happened. 
+1. clients needs to restart, and server needs to report client's position automatically. 
 1. python data push into mongo. learn how to delete data from command, require username and password
 2. nodejs sever needs to fill the rest jobs. 
 3. nodejs client start to work then. 
@@ -32,30 +73,35 @@ http_post, needs to improved.
 9. job manager needs to know if the client is dead or not. 
 10. jobs manager should be able to know the serious errors, jobs client should be able to report all the necessary errors. 
 15. simplify http_get_or_post method, to keep it simply. 
+16. user control on sever web interface. 
+17. server side need to send email out frequently. and sever side to set whether to send email or not. 
 
-## done:
-12. figure out the proxy issue. 
-13. 13. client side needs to have configuration setting automatically. 
-14. server side needs to pass the configuration setting automatically. 
- 
+
+## features:
+1. have a configure file, so each job_worker do not need repeate setted after done once. 
+2. can run under proxy network environment. just need to set the proxy in configure file. have a example to demonstrate how to set up in example. 
+3. job_manger can control how job_work run, it means server side can configure on client by using a web interface on sever. 
+4. develop example on create and push jobs to job_manager, with writing new code (for programmer) or using execl (for non-programmer). 
+5. 
+
+
+## reading points
+1. we only need one server, as all jobs will be managed under a common network address. but we will run multiple job_workers, so we will have multiple clients, so we need to provide a seperate utility file and configure file for clients. 
+2. because ejdb does not support self app_id, so i have to change the job_id in mongodb.
+3. mongodb remeber to close db after reach the funciton, otherwise it will meet connection error. check out on server side. 
+4. request module is not always very robost, https://github.com/joyent/node/issues/4863 request is not always the best in this case. So I have to use local http request. 
+5. scrape on amazon website, it is better to add a / in the end of url: for example, `http://www.amazon.com/mobile-apps/b/ref=mas_dl?ie=UTF8&node=2350149011/`
+6. plan to use cluster module to restart process automaticallly, however, ejdb does not support multiple process, so it has to rely on single process for each task. 
+
+
+
+
+
+
+## done:  
 1. python db_insert_row.py to insert db from local db into mongodb server
 2. http://localhost:8080/web_jobs/jobs_get?client_id=dtc&client_job_request_count=10&job_target=appid_to_asin to get a list jobs. 
 3. 
-
-we only need one sever, with automatically add jobs, or manage the db operation. 
-we need multiple client, each client is for each job, so need to have utility files. 
-
-
-because ejdb does not support self app_id, so i have to change the job_id in mongodb
-
-
-mongodb remeber to close db after reach the funciton, otherwise it will meet connection error. check out on server side
-
-https://github.com/joyent/node/issues/4863 request is not always the best in this case. So I have to use local http request. 
-
-
-scrape on amazon website, it is better to add a / in the end of url: for example, `http://www.amazon.com/mobile-apps/b/ref=mas_dl?ie=UTF8&node=2350149011/`
-
 
 #### jobs_settings:
 1. `http://localhost:8080/web_jobs/jobs_settings?settings_action=`
@@ -68,6 +114,11 @@ scrape on amazon website, it is better to add a / in the end of url: for example
 2. to start mongodb server: $mongod
 2. test mongodb server connection: $mongo
 3. install pymongo for python environment 
+
+
+console.time(label)
+console.timeEnd(label): can be used to measure the timedifference. 
+
 
 
 
