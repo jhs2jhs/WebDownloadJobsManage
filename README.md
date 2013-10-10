@@ -1,6 +1,23 @@
 WebDownloadJobsManage
 =====================
 
+# todo
+1. jobs progression reports on server side:
+	2. when is estimated to finish?
+	3. how many clients are working at moment, and each client's current and previous performance in a time duration. 
+	4. may be also error handing. 
+	5. job manager needs to know if the client is dead or not.
+2. error handing: 
+	3. client be abale to send error message, and server could be able to process error and decide on response. 
+	4. send all the error to server, so I would be able to issue and update the code to response for those error. 
+	5. users are able to register to receive email daily or hourly. 
+3. each client computer should have a deamen, so if new jobs coming, it should be able to check the code updating on git, get the code of client software, and then call the client process if new jobs coming. at monent, it is all manually. For example, I need to log into each computer to start the client process, and when the job done, the process will stop competely. 
+4. each client should be able to detect a best fitting web access interval. 
+5. user management with a simple web interface: python data push into mongo. learn how to delete data from command, require username and password
+5. design a protocol chart for explation
+15. simplify http_get_or_post method, to keep it simply. 
+
+
 #Introduction:
 
 find all the baby music, put it into ipod and also burn a disk, so I can play it for mingye in the car and when wake up
@@ -59,28 +76,6 @@ a_job = {job_id, job_url, job_file_path, job_status, client_id}
 
 # Details:
 
-## todo
-http_post, needs to improved. 
-4. clients needs to send the error log into servers. 
-server sides, client, how to start jobs automatically. it needs to check how many steps are running int he jobs managers. but if client is strong enough, it only needs to start automatically. 
-server needs to have results report, and send email out everyday or everytime, when error happened. 
-1. clients needs to restart, and server needs to report client's position automatically. 
-1. python data push into mongo. learn how to delete data from command, require username and password
-2. nodejs sever needs to fill the rest jobs. 
-3. nodejs client start to work then. 
-4. how to add new jobs without stopping???
-5. design a protocol chart 
-6. common error: 'http encode, check / in the end of url'
-7. job manager need to add path automatically, in the folder. 
-8. job manager need to change the time duration for download, automatically. it looks like this duration is difficult to set up, as it is difficult to know the exact time, as there is no way to know that the website is starts to block or not. so this duration should be fully tested in advanced.  
-9. job manager needs to know if the client is dead or not. 
-10. jobs manager should be able to know the serious errors, jobs client should be able to report all the necessary errors. 
-15. simplify http_get_or_post method, to keep it simply. 
-16. user control on sever web interface. 
-17. server side need to send email out frequently. and sever side to set whether to send email or not.
-18. estimated finish time. 
-email is send based on several people. 
-can jobs be add automatically?
 
 ## features:
 1. have a configure file, so each job_worker do not need repeate setted after done once. 
@@ -99,6 +94,7 @@ can jobs be add automatically?
 6. plan to use cluster module to restart process automaticallly, however, ejdb does not support multiple process, so it has to rely on single process for each task. 
 7. `console.time(label)`, `console.timeEnd(label)`: can be used to measure the timedifference. 
 8. install supervisor for nodejs debugging `npm install supervisor -g`
+9. common error: 'http encode, check / in the end of url'
 
 
 #### db find and then update in jobs_get
