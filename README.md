@@ -1,6 +1,8 @@
 WebDownloadJobsManage
 =====================
 
+#Introduction:
+
 find all the baby music, put it into ipod and also burn a disk, so I can play it for mingye in the car and when wake up
 buy ram
 
@@ -55,6 +57,7 @@ a_job = {job_id, job_url, job_file_path, job_status, client_id}
 3. report back the jobs results back to jobs_manager. 
 4. allow jobs_manager to control on how to conduct the jobs. 
 
+# Details:
 
 ## todo
 http_post, needs to improved. 
@@ -74,8 +77,10 @@ server needs to have results report, and send email out everyday or everytime, w
 10. jobs manager should be able to know the serious errors, jobs client should be able to report all the necessary errors. 
 15. simplify http_get_or_post method, to keep it simply. 
 16. user control on sever web interface. 
-17. server side need to send email out frequently. and sever side to set whether to send email or not. 
-
+17. server side need to send email out frequently. and sever side to set whether to send email or not.
+18. estimated finish time. 
+email is send based on several people. 
+can jobs be add automatically?
 
 ## features:
 1. have a configure file, so each job_worker do not need repeate setted after done once. 
@@ -92,65 +97,9 @@ server needs to have results report, and send email out everyday or everytime, w
 4. request module is not always very robost, https://github.com/joyent/node/issues/4863 request is not always the best in this case. So I have to use local http request. 
 5. scrape on amazon website, it is better to add a / in the end of url: for example, `http://www.amazon.com/mobile-apps/b/ref=mas_dl?ie=UTF8&node=2350149011/`
 6. plan to use cluster module to restart process automaticallly, however, ejdb does not support multiple process, so it has to rely on single process for each task. 
+7. `console.time(label)`, `console.timeEnd(label)`: can be used to measure the timedifference. 
+8. install supervisor for nodejs debugging `npm install supervisor -g`
 
-
-
-
-
-
-## done:  
-1. python db_insert_row.py to insert db from local db into mongodb server
-2. http://localhost:8080/web_jobs/jobs_get?client_id=dtc&client_job_request_count=10&job_target=appid_to_asin to get a list jobs. 
-3. 
-
-#### jobs_settings:
-1. `http://localhost:8080/web_jobs/jobs_settings?settings_action=`
-2. `http://localhost:8080/web_jobs/jobs_settings?settings_action=get&job_target=appid_to_asin&client_id=dtc&settings_key=web_access_interval`
-3. 
-
-
-## Development Environment setting up:
-1. to install mongodb on server: http://docs.mongodb.org/manual/installation/ , better to install with package manager, like brew
-2. to start mongodb server: $mongod
-2. test mongodb server connection: $mongo
-3. install pymongo for python environment 
-
-
-console.time(label)
-console.timeEnd(label): can be used to measure the timedifference. 
-
-
-
-
-how to remove all data in a collection:
-db.collection.remove()
-db.collection.drop()
-db.collection.insert() will create a collection if it is not exists, but it can not insert a document with same _id value. 
-db.collection.save() will crate a collection if _id is not existing, otherwise, it will update a existing document in it. 
-db.collection.count(<query>)
-
-
-### ejdb for client local data store
-the reason do not use it, is it has to require unique _id, which is conflict to maongo custom _id
-
-
-### mongodb http rest set up
-1. $mongodb --rest
-2. access via : `http://127.0.0.1:28017/web_jobs/appid_to_asin/`. the format is `host:port/db/collection/` . make sure to add back slash in the end. 
-3. can add a limit: `http://127.0.0.1:28017/databaseName/collectionName/?limit=-10` 
-4. can skip: `http://127.0.0.1:28017/databaseName/collectionName/?skip=5`
-5. 
-
-##### python 
-1. install: `pip install pymongo`
-2. 
-
-
-#### install supervisor for nodejs debugging
-npm install supervisor -g
-
-##### mongodb in node.js
-http://mongodb.github.io/node-mongodb-native/api-generated/collection.html
 
 #### db find and then update in jobs_get
 	function saveAll( callback ){
@@ -166,6 +115,30 @@ http://mongodb.github.io/node-mongodb-native/api-generated/collection.html
 	}
 
 
+
+
+
+## Development Environment setting up:
+1. to install mongodb on server: `http://docs.mongodb.org/manual/installation/` , better to install with package manager, like homebrew on Mac OSX
+2. to start mongodb server: `$mongod`
+2. test mongodb server connection: `$mongo`
+3. have ejdb install globally: `$npm install -g ejdb`
+3. have python 2.7 intalled. 
+3. install pymongo for python environment: `$pip install pymongo`.
+4. update code repository: `git clone https://github.com/jianhuashao/WebDownloadJobsManage.git`
+4. update node local depedency: `$npm install`.
+5. push jobs into server mongodb with python code or excel file.
+6. start jobs_manager on server side: `$supervisor server.js` for development or `$node server.js` for production.
+7. check the config.js file on client side, to make sure server address is correct. 
+8. run the job_worker on client side: `$node client_appid_to_asin`.
+
+#### urls for jobs_settings testing:
+1. `http://localhost:8080/web_jobs/jobs_settings?settings_action=`
+2. `http://localhost:8080/web_jobs/jobs_settings?settings_action=get&job_target=appid_to_asin&client_id=dtc&settings_key=web_access_interval`
+3. python db_insert_row.py to insert db from local db into mongodb server
+2. `http://localhost:8080/web_jobs/jobs_get?client_id=dtc&client_job_request_count=10&job_target=appid_to_asin` to get a list jobs. 
+
+
 ## web scrapting storage structure
 for each job_target: ==> should be collection or table to reduce the masiveness in the table. 'log' is been reserved. 
 
@@ -177,44 +150,35 @@ for each job_target: ==> should be collection or table to reduce the masiveness 
 7. update_date
 8. job_status
 
-### jobs_get:
+#### jobs_get:
 1. request: `client_id`, `client_job_request_count`, `job_target`
 2. response: `job_target`, `client_id`, `<jobs>`
 3. db operation: assign client_id to jobs, set job_status to 1
 
 
-### jobs_put:
+#### jobs_put:
 1. request: `client_id`, `<jobs>`
 2. response: `[true or false]`
 3. db operation: update jobs content, set job_status to 2
 
-### jobs_view:
+#### jobs_view:
 1. request: `job_target`
 2. response: `status and count`
 
-### jobs_reset:
+#### jobs_reset:
 1. request: `job_target`, `client_id`
 2. response: `redirect to jobs_view`
 3. db operation: update job_status into 0, keep log
 
-### jobs_backup_export:
+#### jobs_backup_export:
 1. request: `job_target`, `client_id`
 2. response: `download`,
 3. db operation: keep log
 
-### jobs_backup_import:
+#### jobs_backup_import:
 1. request:`job_target`, `client_id`, `<jobs>`
 2. response: `[true | false]`
 3. db operation: keep log
-
-
-
-
-
-
-estimated finish time. 
-email is send based on several people. 
-can jobs be add automatically?
 
 
 
@@ -241,9 +205,24 @@ can jobs be add automatically?
 7. remove:
 	1. `db.<collection>.remove(<query>, <justOne>)`
 	2. <justOne>: to limit the delection to just one document set to true or 1. the default value is false. 
-8. 
 
-### SQL TO MongoDB
+
+#### common mongodb command:  
+	how to remove all data in a collection:
+	db.collection.remove()
+	db.collection.drop()
+	db.collection.insert() will create a collection if it is not exists, but it can not insert a document with same _id value. 
+	db.collection.save() will crate a collection if _id is not existing, otherwise, it will update a existing document in it. 
+	db.collection.count(<query>)
+
+#### mongodb http rest set up
+1. $mongodb --rest
+2. access via : `http://127.0.0.1:28017/web_jobs/appid_to_asin/`. the format is `host:port/db/collection/` . make sure to add back slash in the end. 
+3. can add a limit: `http://127.0.0.1:28017/databaseName/collectionName/?limit=-10` 
+4. can skip: `http://127.0.0.1:28017/databaseName/collectionName/?skip=5`
+
+
+#### SQL TO MongoDB
 SQL Terms/Concepts | MongoDB Terms/Concpets
 -------------------|-----------------------
 database | db
@@ -267,24 +246,20 @@ LIMIT | $limit
 SUM () | $sum
 COUNT() | $sum
 
-
-### MongoDB http
+#### MongoDB http
 1. mongodb provide a simple http interface for administrators. the default port is 28017. Locally from http://localhost:28017 
 2. simple REST interface
 	1. query: `http://127.0.0.1:28017/databaseName/collectionName/?filter_a=1&limit=-10`
 	2. 
 	
-### Import and Export MongoDB data
+#### Import and Export MongoDB data
 JSON does not have the following data types that exist in BSON documents: data_binary, data_date, data_timestamp, data_regex, data_oid and data_ref. As a result, using any tool that decodes BSON documents into JSON will suffer some loss of fidelity. 
 If maintaining type fidelity is important, consider writing a data import and export system that does not force BSON documents into JSON form as part of the process. 
 mongodb provides two utility tools for export and import: mongoexport and mongoimport. Output file can be JSON or CSV format. 
 1. mongoexport 
 
 
-
-
-
-## Server side database consideration:
+#### Server side database consideration:
 1. server would performan as RESTful for jobs management. 
 2. server would running in a fixed place, like Amazon EC2, so no need to worry touch about requirment for portable. 
 3. sqlite3 is not good in server side. it is good to transform the database while development, but it is less easy to manage the transform. 
@@ -292,7 +267,7 @@ mongodb provides two utility tools for export and import: mongoexport and mongoi
 3. use mongodb?
 4. sever side backup, automatically 
 
-## client side databaset consideration:
+#### client side databaset consideration:
 1. client should use standlone, single-file, serveless database. 
 2. client would always install or plugin, so it is better to move them around. 
 3. client should be less depedency to allow easy installationa and migration. 
