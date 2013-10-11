@@ -7,10 +7,11 @@ var mkdirp = require('mkdirp');
 var colors = require('colors');
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
+var urlparse = require('url');
 
 
 ///////////////////////////////////////////////////
-module.exports.request_post_ec2 = request_post_ec2;
+module.exports.request_post_http = request_post_http;
 module.exports.request_get_http = request_get_http;
 module.exports.folder_init = folder_init;
 module.exports.jobs_c_n = 'jobs'; // collection name for jobs
@@ -37,33 +38,48 @@ module.exports.http = http;
 // https://github.com/jianhuashao/AndroidAppsCollector/blob/master/http.py
 // http://www.velocityreviews.com/forums/t325113-httplib-and-proxy.html
 
-
-// better to figure out the proxy issue here for amazon_ec2, as well. 
-
-function request_post_ec2(vars, resp_callback, err_callback){
-	var r_options = {
-		uri: vars.uri,
-		method: 'POST',
-		json: vars.post_json,
-		timeout: 20000,
-		maxRedirects: 10,
-		followRedirect: false, // to avoid jump to home page
-		proxy: myconfig.my_http_proxy,
-		qs: {},
-		headers: {'Accept': 'text/html'}
-	}
-	var request_function = function(error, resp, body){
-		if (error){
-			err_callback(-1, vars, resp, body)
-		} else if (resp.statusCode == 200) { // working well
-			resp_callback(resp.statusCode, vars, resp, body)
-		} else if (resp.statusCode == 302) { // redirect 
-			err_callback(resp.statusCode, vars, resp, body)
-		} else {
-			err_callback(resp.statusCode, vars, resp, body)
+function request_post_http(vars, resp_callback, err_callback){
+	var req_options = null;
+	if (myconfig.proxy_settings.proxy_using == true){
+		req_options = {
+			'hostname': myconfig.proxy_settings.proxy_hostname,
+			'port':myconfig.proxy_settings.proxy_port,
+			'path': vars.uri,
+			'method': 'POST',
+			headers: {
+        		"Content-Type": "application/json",
+        		"Content-Length": vars.post_body.length // Often this part is optional
+    		}
+		}
+	} else {
+		url = urlparse.parse(vars.uri);
+		req_options = {
+			'hostname': url.hostname,
+			'port':url.port,
+			'path': url.path,
+			'method': 'POST',
+			headers: {
+        		"Content-Type": "application/json",
+        		"Content-Length": vars.post_body.length // Often this part is optional
+    		}
 		}
 	}
-	request(r_options, request_function);
+	var req = http.request(req_options, function(resp){
+		var body = ''
+		resp.setEncoding('utf8');
+		resp.on('data', function (chunk) { // this event is called everytime when transform data
+			body = body + chunk;
+		});
+		resp.on('end', function(){ // this even is called to finish the stream
+			resp_callback(resp.statusCode, vars, resp, body);
+		});
+	});
+	req.on('error', function(e){
+		console.error('request_get_http: '.red.bold, e.message, e);
+		err_callback(e, vars)
+	});
+	req.write(vars.post_body, 'utf8')
+	req.end()
 }
 
 
@@ -79,7 +95,13 @@ function request_get_http(vars, resp_callback, err_callback){
 			'method': 'GET'
 		}
 	} else {
-		req_options = vars.uri;
+		url = urlparse.parse(vars.uri);
+		req_options = {
+			'hostname': url.hostname,
+			'port':url.port,
+			'path': url.path,
+			'method': 'GET',
+		}
 	}
 	var req = http.request(req_options, function(resp){
 		var body = ''

@@ -29,6 +29,7 @@ var events = require('events');
 var eventEmitter = new events.EventEmitter();
 
 
+
 /////////////////////////
 //////// event
 /////////////////////////
@@ -238,13 +239,13 @@ function client_jobs_put(){
 		if (count == 0) {
 			// next job
 			console.error('jobs_put'.red.bold, "count == 0");
-			eventEmitter.emit('job_step_done', 'jobs_put');
+			eventEmitter.emit('jobs.length=0', 'jobs_put');
 			return;
 		}
 		jobs = []
 		console.log("** client_jobs_put Found "+ count);
 		while (cursor.next()) {
-			jobs.push(cursor.object())
+			jobs.push(cursor.object());
 		}
 		cursor.close();
 		client_jobs_put_request(jobs);
@@ -252,22 +253,24 @@ function client_jobs_put(){
 }
 
 function client_jobs_put_request(jobs) {
-	post_json = {
+	var post_body = {
 		'client_id':myconfig.my_client_id, 
 		'job_target': global.my_job_target,
 		'jobs': jobs
 	};
+	post_body = JSON.stringify(post_body);
 	uri = myconfig.job_server_address+'/jobs_put';
-	var vars = {uri:uri, post_json: post_json};
+	var vars = {uri:uri, post_body: post_body};
 	console.log('** client_jobs_put_request', vars.uri, jobs.length)
-	myutil.request_post_ec2(vars, client_jobs_put_resp_callback, http_connect_error);
+	myutil.request_post_http(vars, client_jobs_put_resp_callback, http_connect_error);
 }
 
 function client_jobs_put_resp_callback(http_statusCode, vars, resp, body){
-	jobs = body
+	jobs = JSON.parse(body);
+	console.log(jobs.length);
 	if (jobs.length == 0){
 		console.error('client_jobs_put_resp_callback'.red.bold, 'jobs.length == 0')
-		eventEmitter.emit('jobs.length=0', 'jobs_put');
+		eventEmitter.emit('jobs.length=0', 'jobs_put'); // futher error division
 	} else {
 		client_jobs_bulk_remove(jobs, 0);
 	}
@@ -290,12 +293,6 @@ function client_jobs_bulk_remove(jobs, i){
 	}
 }
 
-/*
-function client_jobs_put_err_callback(http_statusCode, vars, resp, body){
-	console.error('client_jobs_put_err_callback'.red.bold, http_statusCode);
-	client_jobs_control('jobs_put_error');
-}
-*/
 
 ///////////////////////
 ////////// jobs_do 
@@ -313,7 +310,6 @@ function client_jobs_do_single () {
 		if (obj == null) {
 			// next job, no object founded
 			console.error('== client_jobs_do_single'.yellow.bold, "count == 0");
-			//eventEmitter.emit('job_step_done', 'jobs_do');
 			eventEmitter.emit('jobs.length=0', 'jobs_do');
 		} else {
 			client_jobs_do_download(obj);
@@ -323,7 +319,7 @@ function client_jobs_do_single () {
 
 function client_jobs_do_download(job){
 	var vars = {uri:job.job_url, job_file_path:job.job_file_path, job:job, job_step:'jobs_do'};
-	console.log('** client_jobs_do_download', vars.uri, vars.job_file_path);
+	console.log('** client_jobs_do_download', vars.uri, vars.job_file_path, job._id);
 	myutil.request_get_http(vars, client_jobs_do_resp_callback, client_jobs_do_err_callback);
 }
 
@@ -334,7 +330,7 @@ function client_jobs_do_resp_callback(http_statusCode, vars, resp, body){
 			eventEmitter.emit('ejdb_error', vars.job_step);
 			return
 		} else {
-			client_job_do_update(vars.job, http_statusCode, myutil.job_status_figure.error_when_reading)
+			client_job_do_update(vars.job, http_statusCode, myutil.job_status_figure.done)
 		}
 	});
 }
@@ -367,7 +363,8 @@ function client_job_do_update(job, http_statusCode, job_status){
 
 
 function client_jobs_init(){
-	eventEmitter.emit('job_step_done', 'jobs_init');
+	//eventEmitter.emit('job_step_done', 'jobs_init');
+	eventEmitter.emit('job_step_done', 'jobs_do');
 }
 
 function main(){

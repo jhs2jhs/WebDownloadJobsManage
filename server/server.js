@@ -34,7 +34,7 @@ var job_status_figure = {
 
 //////// jobs_get /////////////
 function jobs_get(req, res) {
-	console.log('jobs_get'.blue.italic, req.query.job_target, req.query.client_id);
+	console.log('jobs_get'.blue.italic, req.query.job_target, req.query.client_id, (new Date().toGMTString()).blue.italic);
 	qs = req.query;
 	client_id = qs.client_id;
 	client_job_request_count = qs.client_job_request_count;
@@ -84,11 +84,12 @@ function jobs_get(req, res) {
 
 /////////// jobs_put ////////////
 function jobs_put(req, res) {
-	console.log('jobs_put'.blue.italic, req.query.job_target, req.query.client_id)
+	console.log('jobs_put'.blue.italic, req.body.job_target, req.body.client_id, (new Date().toGMTString()).blue.italic);
 	qs = req.body;
 	client_id = qs.client_id;
 	job_target = qs.job_target;
 	jobs = qs.jobs;
+	//console.log(req.body)
 	//console.log(client_id == undefined, jobs == undefined, job_target == undefined)
 	if (client_id == undefined || jobs == undefined || job_target == undefined) {
 		res.send(400, 'wrong json');
@@ -105,11 +106,11 @@ function jobs_put_bulk_update(jobs, i, res){
 		_id = new ObjectID(job._id);
 		delete job._id;
 		//delete job._id; // _id is a string, and it have to use objectid wrapper, so simply delete in updating would make life easier. 
-		//console.log(i, jobs.length, jobs[i]._id)
+		//console.log(i, jobs.length, _id, jobs[i].update_date)
 		db_opt(function(db){
 			var query = db.collection(job_target)
 				.update(
-					{'_id': jobs[i]._id}, 
+					{'_id': _id}, 
 					{$set: job},
 					{multi: false},
 					function (err) {
@@ -130,6 +131,7 @@ function jobs_put_bulk_update(jobs, i, res){
 
 //////////////
 function jobs_settings(req, res){
+	console.log('jobs_settings'.blue.italic, req.query.settings_action, (new Date().toGMTString()).blue.italic)
 	qs = req.query;
 	settings_action = qs.settings_action;
 	if (settings_action == undefined) {

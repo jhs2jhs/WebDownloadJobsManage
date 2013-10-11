@@ -2,6 +2,7 @@ WebDownloadJobsManage
 =====================
 
 # todo
+0. proxy adapting: post method is not fully tested. 
 1. jobs progression reports on server side:
 	2. when is estimated to finish?
 	3. how many clients are working at moment, and each client's current and previous performance in a time duration. 
@@ -15,7 +16,7 @@ WebDownloadJobsManage
 4. each client should be able to detect a best fitting web access interval. 
 5. user management with a simple web interface: python data push into mongo. learn how to delete data from command, require username and password
 5. design a protocol chart for explation
-15. simplify http_get_or_post method, to keep it simply. 
+5. simplify http_get_or_post method, to keep it simply. 
 
 
 #Introduction:
