@@ -16,6 +16,9 @@ function db_opt(db_callback){
 			console.error(err.red.bold)
 			//db_opt(db_callback)
 		} else {
+			db.on('error', function(err){
+				console.log('== mongodb error event:', err);
+			});
 			db_callback(db);
 		}
 	});
@@ -145,6 +148,7 @@ function jobs_settings(req, res){
 			db.collection(collection_name_jobs_settings)
 				.find({})
 				.toArray(function(err, docs){
+					db.close();
 					if (err) {
 						console.error('jobs_settings view'.red.bold)
 						res.send(400, 'jobs_settings view db error')
@@ -216,6 +220,7 @@ function jobs_view(req, res){
 	qs = req.query;
 	db_opt(function(db){
 		db.collections(function(err, collections){
+			db.close();
 			for (var i = 1; i< collections.length; i++){
 				collection = collections[i];
 				//console.dir(collection);

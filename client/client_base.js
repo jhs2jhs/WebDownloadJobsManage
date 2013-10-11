@@ -345,7 +345,7 @@ function client_jobs_do_single () {
 
 function client_jobs_do_download(job){
 	var vars = {uri:job.job_url, job_file_path:job.job_file_path, job:job, job_step:'jobs_do'};
-	console.log('** client_jobs_do_download', vars.uri, vars.job_file_path, job._id);
+	console.log('** client_jobs_do_download', vars.uri, vars.job_file_path, job._id, job.job_id);
 	myutil.request_get_http(vars, client_jobs_do_resp_callback, client_jobs_do_err_callback);
 }
 
