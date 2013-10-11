@@ -92,6 +92,7 @@ function jobs_put(req, res) {
 	client_id = qs.client_id;
 	job_target = qs.job_target;
 	jobs = qs.jobs;
+	console.log(jobs.length);
 	//console.log(req.body)
 	//console.log(client_id == undefined, jobs == undefined, job_target == undefined)
 	if (client_id == undefined || jobs == undefined || job_target == undefined) {

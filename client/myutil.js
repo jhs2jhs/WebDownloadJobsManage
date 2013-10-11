@@ -103,6 +103,7 @@ function request_get_http(vars, resp_callback, err_callback){
 			'method': 'GET',
 		}
 	}
+	console.log(req_options);
 	var req = http.request(req_options, function(resp){
 		var body = ''
 		resp.setEncoding('utf8');
