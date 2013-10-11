@@ -34,15 +34,28 @@ var eventEmitter = new events.EventEmitter();
 //////// event
 /////////////////////////
 var i_tries = 0;
-eventEmitter.on('jobs_get_no_more_job', function(){
-	// needs to see if needs to finish the jobs. 
-	console.error("FINISH: jobs_get_no_more_job".blue.bold)
+eventEmitter.on('jobs.length=0', function(job_step){
+	console.log("jobs.length=0: %s".blue.italic, job_step)
 	i_tries ++;
 	console.log('tried: '.yellow, i_tries);
 	if (i_tries > global.job_settings.connection_try_max) {
-		return
+		eturn
 	}
+	switch(job_step){
+		case 'jobs_get':
+			console.error("FINISH: jobs_get_no_more_job".blue.bold)
+			setTimeout(client_jobs_do, global.job_settings.web_access_interval);
+			//client_jobs_do();
+			break;
+		case 'jobs_do':
+			client_jobs_put();
+			break;
+		case 'jobs_put':
+			client_jobs_settings_get();
+			break;
+	}		
 });
+
 eventEmitter.on('http_connect_wrong_status', function(job_step, http_statusCode){
 	console.error("ERROR: client_%s_get_resp_callback".red.bold, job_step, http_statusCode);
 	i_tries ++;
@@ -118,24 +131,37 @@ eventEmitter.on('job_step_done', function(job_step){
 			client_jobs_settings_get();
 	}
 });
-eventEmitter.on('jobs.length=0', function(job_step){
-	console.log("jobs.length=0: %s".blue.italic, job_step)
+
+eventEmitter.on('ejdb_error', function(action, job_step){
+	// did not figure out action: save, update, etc
+	console.error("ERROR: ejdb, %s".red.bold, job_step)
 	i_tries ++;
 	console.log('tried: '.yellow, i_tries);
 	if (i_tries > global.job_settings.connection_try_max) {
-		eturn
+		return
 	}
-	switch(job_step){
+	switch(job_step) {
+		case 'jobs_settings':
+			client_jobs_get();
+			break
+		case 'jobs_get':
+			client_jobs_do();
+			break
 		case 'jobs_do':
 			client_jobs_put();
-			break;
+			break
 		case 'jobs_put':
 			client_jobs_settings_get();
-			break;
-	}		
+			break
+		default:
+			client_jobs_settings_get();
+	}
+	// needs to restart the services, 
 });
-eventEmitter.on('ejdb_error', function(job_step){
-	console.error("ERROR: ejdb, %s".red.bold, job_step)
+
+eventEmitter.on('fs_error', function(action, job_step){
+	// did not figure out action: save, update, etc
+	console.error("ERROR: fs, %s".red.bold, job_step)
 	i_tries ++;
 	console.log('tried: '.yellow, i_tries);
 	if (i_tries > global.job_settings.connection_try_max) {
@@ -213,12 +239,12 @@ function client_jobs_get_resp_callback(http_statusCode, vars, resp, body){
 	var jobs = JSON.parse(body);
 	console.log(jobs.length)
 	if (jobs.length == 0){
-		eventEmitter.emit('jobs_get_no_more_job');
+		eventEmitter.emit('jobs.length=0', vars.job_step);
 		return
 	} else {
 		ejdb.save(global.my_job_target, jobs, function(err, oid){
 			if (err) {
-				eventEmitter.emit('ejdb_error', vars.job_step);
+				eventEmitter.emit('ejdb_error', 'save', vars.job_step);
 				return
 			}
 			eventEmitter.emit('job_step_done', vars.job_step);
@@ -233,7 +259,7 @@ function client_jobs_put(){
 	console.log('================ jobs_put ==========================='.blue.italic);
 	ejdb.find(global.my_job_target, {}, function(err, cursor, count) {
 		if (err) {
-			eventEmitter.emit('ejdb_error', 'jobs_put');
+			eventEmitter.emit('ejdb_error', 'find', 'jobs_put');
 				return
 		}
 		if (count == 0) {
@@ -281,7 +307,7 @@ function client_jobs_bulk_remove(jobs, i){
 		ejdb.remove(global.my_job_target, jobs[i]._id, function(err){
 			if (err) {
 				console.error('client_jobs_bulk_remove'.red.bold, 'ejdb.remove');
-				eventEmitter.emit('ejdb_error', 'jobs_put');
+				eventEmitter.emit('ejdb_error', 'remove', 'jobs_put');
 				return
 			} else {
 				i = i + 1
@@ -304,7 +330,7 @@ function client_jobs_do(){
 function client_jobs_do_single () {
 	ejdb.findOne(global.my_job_target, {'job_status': {$lte: myutil.job_status_figure.unread}}, function(err, obj) {
 		if (err) {
-			eventEmitter.emit('ejdb_error', 'jobs_do');
+			eventEmitter.emit('ejdb_error', 'findOne', 'jobs_do');
 			return;
 		}
 		if (obj == null) {
@@ -327,7 +353,7 @@ function client_jobs_do_resp_callback(http_statusCode, vars, resp, body){
 	console.log(http_statusCode);
 	fs.writeFile(vars.job_file_path, body, function(err){
 		if (err) {
-			eventEmitter.emit('ejdb_error', vars.job_step);
+			eventEmitter.emit('fs_error', 'writeFile', vars.job_step);
 			return
 		} else {
 			client_job_do_update(vars.job, http_statusCode, myutil.job_status_figure.done)
@@ -342,6 +368,7 @@ function client_jobs_do_err_callback(error, vars){
 	} else {
 		// err would already set -1 for http_status in db
 		client_job_do_update(vars.job, -1, myutil.job_status_figure.error_when_reading);
+		// should I emit a error event and also update with sever
 	}
 }
 
@@ -352,7 +379,7 @@ function client_job_do_update(job, http_statusCode, job_status){
 	job.client_id = myconfig.my_client_id;
 	ejdb.save(global.my_job_target, job, function(err, oid){
 		if (err) {
-			eventEmitter.emit('ejdb_error', vars.job_step);
+			eventEmitter.emit('ejdb_error', 'save', vars.job_step);
 			return
 		} else {
 			setTimeout(client_jobs_do_single, global.job_settings.web_access_interval);
@@ -363,8 +390,8 @@ function client_job_do_update(job, http_statusCode, job_status){
 
 
 function client_jobs_init(){
-	//eventEmitter.emit('job_step_done', 'jobs_init');
-	eventEmitter.emit('job_step_done', 'jobs_do');
+	eventEmitter.emit('job_step_done', 'jobs_init');
+	//eventEmitter.emit('job_step_done', 'jobs_do');
 }
 
 function main(){
