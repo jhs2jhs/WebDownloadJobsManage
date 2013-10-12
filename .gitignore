@@ -20,3 +20,5 @@ client_db*
 
 aws/*.pem
 aws/*.*
+
+server/dump/*
