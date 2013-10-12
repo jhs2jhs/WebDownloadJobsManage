@@ -29,6 +29,24 @@ var events = require('events');
 var eventEmitter = new events.EventEmitter();
 
 
+function error_log(job_step, function_name, error_message, error_argus){
+	url_query = querystring.stringify({
+		'client_id':myconfig.my_client_id, 
+		'job_step':job_step,
+		'job_target': global.my_job_target,
+		'function_name': function_name,
+		'error_message': error_message,
+		'error_argus': error_argus
+	});
+	uri = myconfig.job_server_address+'/error_log?'+url_query;
+	var vars = {uri:uri, job_step:'jobs_get'};
+	console.log('** client_jobs_get', vars.uri);
+	myutil.request_get_http(vars, 
+		function(http_statusCode, vars, resp, body){console.log(http_statusCode, vars)}, 
+		function(e, vars){console.log(e, vars)}
+		);
+}
+
 
 /////////////////////////
 //////// event
@@ -41,6 +59,8 @@ eventEmitter.on('jobs.length=0', function(job_step){
 	if (i_tries > global.job_settings.connection_try_max) {
 		eturn
 	}
+	// should log error here as they are actually not error
+	//error_log(job_step, 'jobs.length=0', 'jobs.length=0', 'jobs.length=0');
 	switch(job_step){
 		case 'jobs_get':
 			console.error("FINISH: jobs_get_no_more_job".blue.bold)
@@ -63,6 +83,7 @@ eventEmitter.on('http_connect_wrong_status', function(job_step, http_statusCode)
 	if (i_tries > global.job_settings.connection_try_max) {
 		return
 	}
+	error_log(job_step, job_step, 'http_connect_wrong_status', http_statusCode);
 	switch(job_step) {
 		case 'jobs_settings':
 			client_jobs_get();
@@ -90,6 +111,7 @@ eventEmitter.on('http_connect_error', function(job_step, e){
 	if (i_tries > global.job_settings.connection_try_max) {
 		return
 	}
+	error_log(job_step, 'http_connect_wrong_status', e.toString(), http_statusCode);
 	switch(job_step) {
 		case 'jobs_settings':
 			client_jobs_get();
@@ -140,6 +162,7 @@ eventEmitter.on('ejdb_error', function(action, job_step){
 	if (i_tries > global.job_settings.connection_try_max) {
 		return
 	}
+	error_log(job_step, action, 'ejdb_error', '')
 	switch(job_step) {
 		case 'jobs_settings':
 			client_jobs_get();

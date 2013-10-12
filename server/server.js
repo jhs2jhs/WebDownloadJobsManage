@@ -27,7 +27,7 @@ function db_opt(db_callback){
 	});
 }
 
-function error_log(job_target, client_id, job_step, function_name, err, err_argus, callback){
+function error_log_insert(job_target, client_id, job_step, function_name, err, err_argus, callback){
 	error = {
 		'job_target': job_target,
 		'client_id': client_id,
@@ -49,8 +49,27 @@ function error_log(job_target, client_id, job_step, function_name, err, err_argu
 	});
 }
 
+function error_log(req, res){
+	console.log('error_log'.blue.italic, req.query.job_target, req.body.client_id, (new Date().toGMTString()).blue.italic);
+	qs = req.query;
+	client_id = qs.client_id;
+	job_target = qs.job_target;
+	job_step = qs.job_step;
+	function_name = qs.function_name;
+	error_message = qs.error_message;
+	error_argus = qs.error.argus;
+	if (client_id == undefined || job_target == undefined || job_step == undefined || function_name == undefined || error_message == undefined) {
+		res.send(400, 'error log qs.query is not complete');
+		return
+	}
+	error_log_insert(job_target, client_id, job_step, function_name, error_message, error_argus, function(){
+		console.log('error_log_done');
+		res.send(200, 'error_log_done');
+	});
+}
+
 eventEmitter.on('mongodb_error', function(action, job_target, client_id, job_step, err){
-	error_log(job_target, client_id, job_step, action, err, '', function(){
+	error_log_insert(job_target, client_id, job_step, action, err, '', function(){
 		res.send(400, 'server error mongodb_error');
 	})
 });
@@ -388,5 +407,6 @@ app.get('/web_jobs/jobs_view', jobs_view);
 //app.post('/web_jobs/jobs_backup_import', jobs_import);
 app.post('/web_jobs/jobs_put', jobs_put);
 app.get('/web_jobs/jobs_settings', jobs_settings);
+app.get('/web_jobs/error_log', error_log);
 
 app.listen(8080);
