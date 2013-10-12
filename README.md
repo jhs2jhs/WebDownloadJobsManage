@@ -103,7 +103,15 @@ a_job = {job_id, job_url, job_file_path, job_status, client_id}
 	}
 
 
-
+## set up on amazon ec2:
+1. ssh into amazon ec2: 
+2. install mongodb on ubuntu: http://docs.mongodb.org/manual/tutorial/install-mongodb-on-ubuntu/
+	2. mongodb store db files in `/var/lib/mongodb`
+	3. 
+3. start mongodb: `sudo service mongodb start`
+4. set up file: `git clone https://github.com/jianhuashao/WebDownloadJobsManage.git`
+5. update npm: `npm install`
+6. 
 
 
 ## Development Environment setting up:

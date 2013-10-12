@@ -389,21 +389,42 @@ function jobs_view_error_log(collection_names, res, progress){
 	});
 }
 
-function remove_from_array(arr, item) {
-      for(var i = arr.length; i--;) {
-          if(arr[i] === item) {
-              arr.splice(i, 1);
-          }
-      }
-  }
 
+function jobs_reset(req, res){
+	console.log('jobs_reset'.blue.italic, req.query.job_target, req.query.client_id, (new Date().toGMTString()).blue.italic);
+	qs = req.query;
+	client_id = qs.client_id;
+	job_target = qs.job_target;
+	if (client_id == undefined || job_target == undefined){
+		res.send(400, 'jobs_reset wrong argument');
+		return
+	}
+	db_opt(function(db){
+		db.collection(job_target)
+			.update(
+				{'job_status':job_status_figure.assigned},
+				{$set: {'job_status':job_status_figure.unread}}, 
+				{multi:true},
+				function(err){
+					db.close()
+					if (err){
+						console.error('jobs_reset'.red.bold, err);
+						eventEmitter.emit('mongodb_error', 'update', job_target, client_id_server, 'jobs_reset', err);
+						res.send(400, 'mongodb error in jobs_reset');
+					} else {
+						res.redirect('/web_jobs/jobs_view');
+					}
+				});
+
+	});
+}
 
 
 app.use(express.bodyParser());
 app.get('/hello', hello);
 app.get('/web_jobs/jobs_get', jobs_get);
 app.get('/web_jobs/jobs_view', jobs_view);
-//app.get('/web_jobs/jobs_reset', jobs_reset);
+app.get('/web_jobs/jobs_reset', jobs_reset);
 //app.get('/web_jobs/jobs_backup_export', jobs_export);
 //app.post('/web_jobs/jobs_backup_import', jobs_import);
 app.post('/web_jobs/jobs_put', jobs_put);

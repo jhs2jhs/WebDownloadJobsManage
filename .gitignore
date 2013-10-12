@@ -19,3 +19,4 @@ node_modules/*
 client_db*
 
 aws/*.pem
+aws/*.*
