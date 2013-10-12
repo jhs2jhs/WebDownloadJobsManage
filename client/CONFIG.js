@@ -11,4 +11,12 @@ module.exports.proxy_settings = {
 	'proxy_using': false,
 	'proxy_hostname': '128.243.46.53',
 	'proxy_port': '3128'
-}
+};
+
+// mail configuration
+module.exports.mail_opts = {
+	'smtp_server_user': 'your email address',
+	'smtp_server_pass': 'your password',
+	'from_email': 'email address',
+	'to_email': 'email address'
+};
