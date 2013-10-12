@@ -22,3 +22,5 @@ aws/*.pem
 aws/*.*
 
 server/dump/*
+
+client/CONFIG.js
