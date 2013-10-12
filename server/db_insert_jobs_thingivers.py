@@ -18,13 +18,16 @@ def job_upsert_bulk():
 		job_status = 1
 		http_status = -1
 		i = i + 1
+		print i,
 		if i > t + 1000:
-			print t,
+			print t
 			t = t + 1000
 		job_upsert(job_id, job_url, job_file_path, client_id, create_date, update_date, job_status, http_status)
 	print i
 ###### custom function end, need to modify according to real case
 
+def print_i(i):
+	print i,
 
 from pymongo import MongoClient
 from datetime import datetime
