@@ -1,0 +1,1 @@
+copy from your amazon ec2 command line
