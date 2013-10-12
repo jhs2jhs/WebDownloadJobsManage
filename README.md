@@ -111,7 +111,9 @@ a_job = {job_id, job_url, job_file_path, job_status, client_id}
 3. start mongodb: `sudo service mongodb start`
 4. set up file: `git clone https://github.com/jianhuashao/WebDownloadJobsManage.git`
 5. update npm: `npm install`
-6. 
+6. using forever to create a child_process: `cd server; sh start`
+7. insert data to mongodb: `python db_insert_jobs_thingiverse.py`
+8. back up the mongodb `mongodump` http://docs.mongodb.org/manual/tutorial/backup-databases-with-binary-database-dumps/, remember each back up will overwrite previous backup.
 
 
 ## Development Environment setting up:
