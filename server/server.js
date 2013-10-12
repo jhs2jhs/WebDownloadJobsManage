@@ -40,6 +40,7 @@ function error_log_insert(job_target, client_id, job_step, function_name, err, e
 	db_opt(function(db){
 		db.collection('error_log')
 			.save(error, function(err){
+				db.close();
 				if (err) {
 					throw err
 				} else {
@@ -50,14 +51,14 @@ function error_log_insert(job_target, client_id, job_step, function_name, err, e
 }
 
 function error_log(req, res){
-	console.log('error_log'.blue.italic, req.query.job_target, req.body.client_id, (new Date().toGMTString()).blue.italic);
+	console.log('error_log'.red.italic, req.query.job_target, req.body.client_id, (new Date().toGMTString()).red.italic);
 	qs = req.query;
 	client_id = qs.client_id;
 	job_target = qs.job_target;
 	job_step = qs.job_step;
 	function_name = qs.function_name;
 	error_message = qs.error_message;
-	error_argus = qs.error.argus;
+	error_argus = qs.error_argus;
 	if (client_id == undefined || job_target == undefined || job_step == undefined || function_name == undefined || error_message == undefined) {
 		res.send(400, 'error log qs.query is not complete');
 		return
@@ -293,7 +294,7 @@ function jobs_view(req, res){
 				collection = collections[i];
 				collection_names.push(collection.collectionName);
 			}
-			var progress = {'job_status':{}, 'error':{}, 'client_id':{}}
+			var progress = {'job_status':{}, 'error_log':{}, 'client_id':{}}
 			var collection_names_copy = collection_names.slice(0);
 			jobs_view_job_status(collection_names, collection_names_copy, res, progress);
 		});

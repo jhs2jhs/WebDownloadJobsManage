@@ -2,15 +2,7 @@ WebDownloadJobsManage
 =====================
 
 # todo
-1. jobs progression reports on server side:
-	2. when is estimated to finish?
-	3. how many clients are working at moment, and each client's current and previous performance in a time duration. 
-	4. may be also error handing. 
-	5. job manager needs to know if the client is dead or not.
-2. error handing: 
-	3. client be abale to send error message, and server could be able to process error and decide on response. 
-	4. send all the error to server, so I would be able to issue and update the code to response for those error. 
-	5. users are able to register to receive email daily or hourly. 
+
 3. each client computer should have a deamen, so if new jobs coming, it should be able to check the code updating on git, get the code of client software, and then call the client process if new jobs coming. at monent, it is all manually. For example, I need to log into each computer to start the client process, and when the job done, the process will stop competely. 
 4. each client should be able to detect a best fitting web access interval. 
 5. user management with a simple web interface: python data push into mongo. learn how to delete data from command, require username and password
@@ -133,6 +125,7 @@ a_job = {job_id, job_url, job_file_path, job_status, client_id}
 2. `http://localhost:8080/web_jobs/jobs_settings?settings_action=get&job_target=appid_to_asin&client_id=dtc&settings_key=web_access_interval`
 3. python db_insert_row.py to insert db from local db into mongodb server
 2. `http://localhost:8080/web_jobs/jobs_get?client_id=dtc&client_job_request_count=10&job_target=appid_to_asin` to get a list jobs. 
+3. `http://localhost:8080/web_jobs/jobs_view` to view jobs progress and error_log
 
 
 ## web scrapting storage structure
