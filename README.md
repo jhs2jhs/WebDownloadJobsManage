@@ -2,7 +2,6 @@ WebDownloadJobsManage
 =====================
 
 # todo
-0. proxy adapting: post method is not fully tested. 
 1. jobs progression reports on server side:
 	2. when is estimated to finish?
 	3. how many clients are working at moment, and each client's current and previous performance in a time duration. 

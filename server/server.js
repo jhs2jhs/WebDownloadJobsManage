@@ -7,7 +7,10 @@ var MongoClient = require('mongodb').MongoClient;
 var mongodb_url = 'mongodb://127.0.0.1:27017/web_jobs'
 var ObjectID = require('mongodb').ObjectID;
 var colors = require('colors');
-var collection_name_jobs_settings = 'jobs_settings'
+var collection_name_jobs_settings = 'jobs_settings';
+var client_id_server = 'jobs_manager_server';
+var events = require('events');
+var eventEmitter = new events.EventEmitter();
 
 function db_opt(db_callback){
 	MongoClient.connect(mongodb_url, function(err, db){
@@ -23,6 +26,34 @@ function db_opt(db_callback){
 		}
 	});
 }
+
+function error_log(job_target, client_id, job_step, function_name, err, err_argus, callback){
+	error = {
+		'job_target': job_target,
+		'client_id': client_id,
+		'job_step': job_step,
+		'function_name': function_name, 
+		'error_message': err.toString(),
+		'error_argus': err_argus,
+		'report_date': new Date()
+	};
+	db_opt(function(db){
+		db.collection('error_log')
+			.save(error, function(err){
+				if (err) {
+					throw err
+				} else {
+					callback();
+				}
+			});
+	});
+}
+
+eventEmitter.on('mongodb_error', function(action, job_target, client_id, job_step, err){
+	error_log(job_target, client_id, job_step, action, err, '', function(){
+		res.send(400, 'server error mongodb_error');
+	})
+});
 
 function hello(req, res){
 	res.send('Hello World, Jobs Manager');
@@ -54,11 +85,13 @@ function jobs_get(req, res) {
 			.find({'job_status':{$lte:job_status_figure.unread}})
 			.limit(client_job_request_count)
 			.toArray(function(err, docs){
+				db.close();
 				if (err) {
 					console.error('jobs_get db'.red.bold, err.red.bold)
+					eventEmitter.emit('mongodb_error', 'find', job_target, client_id_sever, 'jobs_get', err);
+					res.send(400, 'db find error');
 					return
 				}
-				db.close();
 				var _ids = []
 				for (var i = 0; i<docs.length; i++){
 					_ids.push(docs[i]._id)
@@ -74,6 +107,7 @@ function jobs_get(req, res) {
 								db1.close()
 								if (err){
 									console.error('jobs_get'.red.bold, err.red.bold);
+									eventEmitter.emit('mongodb_error', 'update', job_target, client_id_sever, 'jobs_get', err);
 									res.send(400, 'db update error');
 								} else {
 									res.send(docs)
@@ -121,7 +155,9 @@ function jobs_put_bulk_update(jobs, i, res){
 						db.close();
 						if (err) {
 							console.error('jobs_put_bulk_update'.red.bold, err.red.color)
+							eventEmitter.emit('mongodb_error', 'update', job_target, client_id_sever, 'jobs_put', err);
 							res.send(400, 'db update error')
+							return
 						} else {
 							i = i + 1
 							jobs_put_bulk_update(jobs, i, res)
@@ -152,7 +188,9 @@ function jobs_settings(req, res){
 					db.close();
 					if (err) {
 						console.error('jobs_settings view'.red.bold)
+						eventEmitter.emit('mongodb_error', 'find', job_target, client_id_sever, 'jobs_settings', err);
 						res.send(400, 'jobs_settings view db error')
+						return
 					} else {
 						for (var i=0; i<docs.length; i++){
 							docs[i]['setting_url'] = '/web_jobs/jobs_settings?settings_action=setting&client_id=server&job_target='+docs[i]['job_target']+'&settings_key='+docs[i]['settings_key']+'&settings_value=';
@@ -175,6 +213,7 @@ function jobs_settings(req, res){
 				.findOne({'settings_key':settings_key}, function(err, item){
 					if (err){
 						console.error("jobs_settings get".red.bold, 'findone error');
+						eventEmitter.emit('mongodb_error', 'findOne', job_target, client_id_sever, 'jobs_settings', err);
 						res.send(400, 'findone error')
 						return 
 					} else {
@@ -203,7 +242,9 @@ function jobs_settings(req, res){
 						db.close();
 						if (err) {
 							console.error('jobs_settings'.red.bold, err.red.bold);
+							eventEmitter.emit('mongodb_error', 'update', job_target, client_id_sever, 'jobs_settings', err);
 							res.send(400, 'settings_action db update error');
+							return
 						} else {
 							res.redirect('/web_jobs/jobs_settings?settings_action=view')
 						}
@@ -217,19 +258,125 @@ function jobs_settings(req, res){
 }
 
 
+//////////////
 function jobs_view(req, res){
 	qs = req.query;
 	db_opt(function(db){
 		db.collections(function(err, collections){
-			db.close();
+			db.close(); 
+			if (err){
+				console.error('jobs_view'.red.bold);
+				eventEmitter.emit('mongodb_error', 'collections', "job_collections", client_id_server, 'jobs_view', err);
+				return
+			}
+			var collection_names = [];
 			for (var i = 1; i< collections.length; i++){
 				collection = collections[i];
-				//console.dir(collection);
-				console.log(collection.collectionName);
+				collection_names.push(collection.collectionName);
 			}
+			var progress = {'job_status':{}, 'error':{}, 'client_id':{}}
+			var collection_names_copy = collection_names.slice(0);
+			jobs_view_job_status(collection_names, collection_names_copy, res, progress);
 		});
 	})
 }
+function jobs_view_job_status(collection_names, collection_names_copy, res, progress){
+	console.log('job_status', collection_names_copy.length);
+	if (collection_names_copy.length == 0){
+		// come to error log
+		// how many clients jobs do. save as this but id filed is different 
+		var collection_names_copy = collection_names;
+		jobs_view_client_id(collection_names, collection_names_copy, res, progress)
+		return
+	}
+	var collection_name = collection_names_copy.pop();
+	console.log(collection_name);
+	if (collection_name == 'jobs_settings') {
+		jobs_view_job_status(collection_names, collection_names_copy, res, progress);
+		return
+	}
+	db_opt(function(db){
+		db.collection(collection_name)
+			.aggregate([
+					{$group: {_id:'$job_status', count:{$sum:1}}}
+				],
+				function(err, docs){
+					db.close();
+					if (err){
+						console.error('jobs_view_job_status'.red.bold, err);
+						eventEmitter.emit('mongodb_error', 'aggregate', 'jobs_collection', client_id_server, 'jobs_view_job_status', err);
+						return
+					}
+					console.log(docs);
+					progress['job_status'][collection_name] = docs;
+					jobs_view_job_status(collection_names, collection_names_copy, res, progress);
+					return
+				}
+			);
+		}
+	);
+}
+function jobs_view_client_id(collection_names, collection_names_copy, res, progress){
+	console.log('client_id', collection_names_copy.length);
+	if (collection_names_copy.length == 0){
+		jobs_view_error_log(collection_names, res, progress);
+		return
+	}
+	var collection_name = collection_names_copy.pop();
+	console.log(collection_name);
+	if (collection_name == 'jobs_settings') {
+		jobs_view_client_id(collection_names, collection_names_copy, res, progress);
+		return
+	}
+	db_opt(function(db){
+		db.collection(collection_name)
+			.aggregate([
+					{$group: {_id:'$client_id', count:{$sum:1}}}
+				],
+				function(err, docs){
+					db.close();
+					if (err){
+						console.error('jobs_view_client_id'.red.bold, err);
+						eventEmitter.emit('mongodb_error', 'aggregate', 'jobs_collection', client_id_server, 'jobs_view_client_id', err);
+						return
+					}
+					console.log(docs);
+					progress['client_id'][collection_name] = docs;
+					jobs_view_client_id(collection_names, collection_names_copy, res, progress);
+					return
+				}
+			);
+		}
+	);
+}
+function jobs_view_error_log(collection_names, res, progress){
+	console.log('client_id', collection_names.length);
+	db_opt(function(db){
+		db.collection('error_log')
+			.find()
+			.sort({'report_date':-1}) 
+			.limit(10)
+			.toArray(function(err, docs){
+				db.close();
+				if (err) {
+					console.error('jobs_view_error_log'.red.bold, err);
+					eventEmitter.emit('mongodb_error', 'find', "jobs_collection", client_id_server, 'jobs_view_error_log', err);
+					return
+				}
+				progress['error_log'] = docs;
+				res.send(progress);
+			});
+	});
+}
+
+function remove_from_array(arr, item) {
+      for(var i = arr.length; i--;) {
+          if(arr[i] === item) {
+              arr.splice(i, 1);
+          }
+      }
+  }
+
 
 
 app.use(express.bodyParser());
