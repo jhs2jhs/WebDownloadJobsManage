@@ -458,6 +458,10 @@ function jobs_mongodb_dump_action (req, res) {
 function jobs_mongodb_export(req, res){
 	qs = req.query;
 	job_target = qs.job_target;
+	if (job_target == undefined) {
+		res.send(400, 'job_target == undefined');
+		return
+	}
 	console.log('mongoexport --db web_jobs --collection '+job_target+' --out mongodb_export/'+job_target+'.json');
 	var child = exec('mongoexport --db web_jobs --collection '+job_target+' --out '+job_target+'.json',
 		function (error, stdout, stderr) {
@@ -472,6 +476,10 @@ function jobs_mongodb_export(req, res){
 function jobs_mongodb_import(req, res){
 	qs = req.query;
 	job_target = qs.job_target;
+	if (job_target == undefined) {
+		res.send(400, 'job_target == undefined');
+		return
+	}
 	console.log('mongoimport --db web_jobs --collection '+job_target+' --out mongodb_export/'+job_target+'.json');
 	var child = exec('mongoimport --db web_jobs --collection '+job_target+' --out '+job_target+'.json',
 		function (error, stdout, stderr) {
