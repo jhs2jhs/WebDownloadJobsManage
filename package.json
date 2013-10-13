@@ -16,6 +16,7 @@
 		"dict":"*",
 		"forever":"*",
 		"nodemailer":"*",
-		"prettyjson":"*"
+		"prettyjson":"*",
+		"filesize":"*"
 	}
 }

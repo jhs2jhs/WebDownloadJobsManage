@@ -11,6 +11,10 @@ var collection_name_jobs_settings = 'jobs_settings';
 var client_id_server = 'jobs_manager_server';
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
+var fs = require('fs');
+var filesize = require('filesize');
+var os = require('os');
+var exec = require('child_process').exec;
 
 function db_opt(db_callback){
 	MongoClient.connect(mongodb_url, function(err, db){
@@ -420,6 +424,82 @@ function jobs_reset(req, res){
 }
 
 
+function jobs_mongodb_dump_files (req, res){
+	var results = {};
+	file_names = fs.readdirSync(__dirname+'/dump/web_jobs/');
+	for (var i in file_names) {
+		file_name = file_names[i];
+		var file_stat = fs.statSync(__dirname+'/dump/web_jobs/'+file_name);
+		//console.log(file_stat);
+		results[file_name] = {};
+		results[file_name]['filesize'] = filesize(file_stat.size);
+		results[file_name]['create_time'] = file_stat.atime;
+		results[file_name]['modify_time'] = file_stat.mtime;
+		results[file_name]['link'] = '/web_jobs/dump/'+file_name;  // how to get the full url, please
+
+	}
+	//console.log(app.settings);
+	//console.log(process.env);
+	console.log(os.hostname());
+	res.send(results);
+}
+
+function jobs_mongodb_dump_action (req, res) {
+	var child = exec('mongodump',
+		function (error, stdout, stderr) {
+			if (error) {
+				console.log('exec error: ' + error);
+			} else {
+				res.send("<pre>"+stdout+"</pre>");
+			}
+		});
+}
+function jobs_mongodb_export(req, res){
+	qs = req.query;
+	job_target = qs.job_target;
+	console.log('mongoexport --db web_jobs --collection '+job_target+' --out mongodb_export/'+job_target+'.json');
+	var child = exec('mongoexport --db web_jobs --collection '+job_target+' --out '+job_target+'.json',
+		function (error, stdout, stderr) {
+			if (error) {
+				console.log('exec error: ' + error);
+			} else {
+				res.send("<pre>"+stdout+"</pre>");
+			}
+		});
+}
+function jobs_mongodb_import(req, res){
+	qs = req.query;
+	job_target = qs.job_target;
+	console.log('mongoimport --db web_jobs --collection '+job_target+' --out mongodb_export/'+job_target+'.json');
+	var child = exec('mongoimport --db web_jobs --collection '+job_target+' --out '+job_target+'.json',
+		function (error, stdout, stderr) {
+			if (error) {
+				console.log('exec error: ' + error);
+			} else {
+				res.send("<pre>"+stdout+"</pre>");
+			}
+		});
+}
+function jobs_mongodb_export_files (req, res){
+	var results = {};
+	file_names = fs.readdirSync(__dirname+'/mongodb_export/');
+	for (var i in file_names) {
+		file_name = file_names[i];
+		var file_stat = fs.statSync(__dirname+'/mongodb_export/'+file_name);
+		//console.log(file_stat);
+		results[file_name] = {};
+		results[file_name]['filesize'] = filesize(file_stat.size);
+		results[file_name]['create_time'] = file_stat.atime;
+		results[file_name]['modify_time'] = file_stat.mtime;
+		results[file_name]['link'] = '/web_jobs/mongodb_export_files/'+file_name;  // how to get the full url, please
+
+	}
+	//console.log(app.settings);
+	//console.log(process.env);
+	console.log(os.hostname());
+	res.send(results);
+}
+
 app.use(express.bodyParser());
 app.get('/hello', hello);
 app.get('/web_jobs/jobs_get', jobs_get);
@@ -430,5 +510,16 @@ app.get('/web_jobs/jobs_reset', jobs_reset);
 app.post('/web_jobs/jobs_put', jobs_put);
 app.get('/web_jobs/jobs_settings', jobs_settings);
 app.get('/web_jobs/error_log', error_log);
+
+// have to use both directory and static, as directory does not allow to view single files. 
+app.use('/web_jobs/dump', express.directory(__dirname + '/dump/web_jobs/', icons=true));
+app.use('/web_jobs/dump', express.static(__dirname + '/dump/web_jobs/'));
+app.get('/web_jobs/dump_files', jobs_mongodb_dump_files);
+app.get('/web_jobs/dump_action', jobs_mongodb_dump_action);
+app.get('/web_jobs/mongodb_export_action', jobs_mongodb_export);
+app.use('/web_jobs/mongodb_export_files', express.static(__dirname + '/mongodb_export/'));
+app.use('/web_jobs/mongodb_export_files', express.directory(__dirname + '/mongodb_export/', icons=true));
+app.get('/web_jobs/mongodb_export_files_view', jobs_mongodb_export_files);
+app.get('/web_jobs/mongodb_import_action', jobs_mongodb_import);
 
 app.listen(8080);

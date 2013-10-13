@@ -136,6 +136,11 @@ a_job = {job_id, job_url, job_file_path, job_status, client_id}
 3. python db_insert_row.py to insert db from local db into mongodb server
 2. `http://localhost:8080/web_jobs/jobs_get?client_id=dtc&client_job_request_count=10&job_target=appid_to_asin` to get a list jobs. 
 3. `http://localhost:8080/web_jobs/jobs_view` to view jobs progress and error_log
+4. `http://localhost:8080/web_jobs/dump_action` to mongodump to back the whole database
+5. `http://localhost:8080/web_jobs/mongodb_export_action?job_target=appid_to_asin` to export appid_to_asin collection into a json file
+6. ``http://localhost:8080/web_jobs/mongodb_import_action?job_target=appid_to_asin` to import appid_to_asin collection into database, it will not overwrite existing documents in database, but only insert the non-exisitng one. 
+7. `http://localhost:8080/web_jobs/mongodb_export_files` to view the file size and other information. 
+8. 
 
 
 ## web scrapting storage structure
@@ -255,7 +260,8 @@ COUNT() | $sum
 JSON does not have the following data types that exist in BSON documents: data_binary, data_date, data_timestamp, data_regex, data_oid and data_ref. As a result, using any tool that decodes BSON documents into JSON will suffer some loss of fidelity. 
 If maintaining type fidelity is important, consider writing a data import and export system that does not force BSON documents into JSON form as part of the process. 
 mongodb provides two utility tools for export and import: mongoexport and mongoimport. Output file can be JSON or CSV format. 
-1. mongoexport 
+1. mongoexport: output all files out.
+2. mongoimport: it will will not overwrite existing record unless you specify '--upsert' argument. it will only insert on-existing records. http://stackoverflow.com/questions/10018580/how-to-import-only-non-existing-documents
 
 
 #### Server side database consideration:
