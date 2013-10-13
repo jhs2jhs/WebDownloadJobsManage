@@ -463,7 +463,7 @@ function jobs_mongodb_export(req, res){
 		return
 	}
 	console.log('mongoexport --db web_jobs --collection '+job_target+' --out mongodb_export/'+job_target+'.json');
-	var child = exec('mongoexport --db web_jobs --collection '+job_target+' --out '+job_target+'.json',
+	var child = exec('mongoexport --db web_jobs --collection '+job_target+' --out mongodb_export/'+job_target+'.json',
 		function (error, stdout, stderr) {
 			if (error) {
 				console.log('exec error: ' + error);
@@ -481,7 +481,7 @@ function jobs_mongodb_import(req, res){
 		return
 	}
 	console.log('mongoimport --db web_jobs --collection '+job_target+' --out mongodb_export/'+job_target+'.json');
-	var child = exec('mongoimport --db web_jobs --collection '+job_target+' --out '+job_target+'.json',
+	var child = exec('mongoimport --db web_jobs --collection '+job_target+' --out mongodb_export/'+job_target+'.json',
 		function (error, stdout, stderr) {
 			if (error) {
 				console.log('exec error: ' + error);
