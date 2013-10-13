@@ -2,6 +2,7 @@ var myconfig = require('./CONFIG.js');
 var myutil = require('./myutil.js')
 var sprintf = require('util').format;
 var nodemailer = require("nodemailer");
+var prettyjson = require('prettyjson');
 
 // dump the database as well. 
 
@@ -42,7 +43,33 @@ function my_test(){
 }
 
 function check_server_app_review() {
-	var 
+	var uri = myconfig.job_server_address+'/jobs_view';
+	var vars = {uri:uri};
+	console.log('** check_server_app_review', vars.uri)
+	myutil.request_get_http(vars, check_server_app_review_resp_callback, http_connect_error);
+}
+function check_server_app_review_resp_callback(http_statusCode, vars, resp, body){
+	if (http_statusCode != 200) {
+		eventEmitter.emit('http_connect_wrong_status', vars.job_step, http_statusCode);
+		return
+	}
+	//console.log(body);
+	jobs = JSON.parse(body);
+	var subject = 'Jobs Progress: '+new Date().toGMTString();
+	var text = body;
+	var mail_body = JSON.stringify(jobs, undefined, 2);
+	mail_body = "<pre>"+mail_body+"</pre>";
+	send_email(subject, text, mail_body, check_server_app_review_timeout);
+}
+function http_connect_error(e, vars){
+	console.error(e, vars);
 }
 
-my_test();
+function check_server_app_review_timeout(){
+	var t= 1000 * 60 * 60;
+	console.log(t);
+	setTimeout(check_server_app_review, t);
+}
+
+
+check_server_app_review();

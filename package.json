@@ -15,6 +15,7 @@
 		"colors":"*",
 		"dict":"*",
 		"forever":"*",
-		"nodemailer":"*"
+		"nodemailer":"*",
+		"prettyjson":"*"
 	}
 }
