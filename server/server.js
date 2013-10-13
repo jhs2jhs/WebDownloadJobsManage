@@ -449,6 +449,7 @@ function jobs_mongodb_dump_action (req, res) {
 		function (error, stdout, stderr) {
 			if (error) {
 				console.log('exec error: ' + error);
+				res.send(400, error);
 			} else {
 				res.send("<pre>"+stdout+"</pre>");
 			}
@@ -462,6 +463,7 @@ function jobs_mongodb_export(req, res){
 		function (error, stdout, stderr) {
 			if (error) {
 				console.log('exec error: ' + error);
+				res.send(400, error);
 			} else {
 				res.send("<pre>"+stdout+"</pre>");
 			}
@@ -475,6 +477,7 @@ function jobs_mongodb_import(req, res){
 		function (error, stdout, stderr) {
 			if (error) {
 				console.log('exec error: ' + error);
+				res.send(400, error);
 			} else {
 				res.send("<pre>"+stdout+"</pre>");
 			}
