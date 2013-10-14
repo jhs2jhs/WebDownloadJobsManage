@@ -1,1 +1,1 @@
-ssh -i key_aws_android_scrape.pem ubuntu@ec2-176-34-208-178.eu-west-1.compute.amazonaws.com
+ssh -i key_aws_android_scrape.pem ubuntu@ec2-54-220-209-62.eu-west-1.compute.amazonaws.com

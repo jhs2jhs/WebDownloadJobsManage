@@ -111,7 +111,7 @@ eventEmitter.on('http_connect_error', function(job_step, e){
 	if (i_tries > global.job_settings.connection_try_max) {
 		return
 	}
-	error_log(job_step, 'http_connect_wrong_status', e.toString(), http_statusCode);
+	error_log(job_step, 'http_connect_wrong_status', e.toString(), e.toString());
 	switch(job_step) {
 		case 'jobs_settings':
 			client_jobs_get();
