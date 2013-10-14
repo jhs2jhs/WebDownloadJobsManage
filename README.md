@@ -118,6 +118,13 @@ a_job = {job_id, job_url, job_file_path, job_status, client_id}
 8. back up the mongodb `mongodump` http://docs.mongodb.org/manual/tutorial/backup-databases-with-binary-database-dumps/, remember each back up will overwrite previous backup.
 
 
+#### increase disk space on ec2: 
+1. http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-expand-volume.html
+2. check price spending on ec2: https://portal.aws.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=activity-summary
+3. 
+
+
+
 ## Development Environment setting up:
 1. to install mongodb on server: `http://docs.mongodb.org/manual/installation/` , better to install with package manager, like homebrew on Mac OSX
 2. to start mongodb server: `$mongod`
