@@ -27,3 +27,4 @@ client/CONFIG.js
 
 server/mongodb_export/*.json
 *.json
+*.pyc

@@ -279,6 +279,12 @@ mongodb provides two utility tools for export and import: mongoexport and mongoi
 4. client database should be a embeded database.
 5. ejdb? 
 
+#### unique key in mongodb, so insert will ignore if exist
+1. `db.collection.getIndexes()`: http://docs.mongodb.org/manual/reference/method/db.collection.dropIndex/#db.collection.dropIndex
+2. `db.appid_to_asin.ensureIndex({job_id:1}, {unique:true, dropDups:true})`: http://docs.mongodb.org/manual/reference/method/db.collection.dropIndex/#db.collection.dropIndex
+3. `db.appid_to_asin.dropIndex('job_id_1')`: drop index
+
+
 
 ## Web Post processing:
 write a common python framework to process the document. 
