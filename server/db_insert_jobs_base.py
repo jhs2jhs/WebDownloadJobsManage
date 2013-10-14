@@ -27,12 +27,12 @@ def make_job(job_id, job_url, job_file_path, client_id, create_date, update_date
 ## insert: only be used for fresh insert, as existing _id would cause duplicate insert and then error
 ## save: same as _update method, but would create collection if it is not exist
 ## consider with ejdb does not support custom _id, so I have to use upsert 
-def job_upsert(job):
-	j = db.appid_to_asin.update({'job_id': job['job_id']}, {'$set':job}, upsert=True, multi=True)
+def job_upsert(job, collection):
+	j = db[collection].update({'job_id': job['job_id']}, {'$set':job}, upsert=True, multi=True)
 
-def job_insert(job):
+def job_insert(job, collection):
 	try:
-		j = db.appid_to_asin.insert(job)
+		j = db[collection].insert(job)
 	except pymongo.errors.DuplicateKeyError as e:
 		#print e
 		pass

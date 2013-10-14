@@ -5,8 +5,7 @@ client_id = 'server_test'
 import sqlite3
 import db_insert_jobs_base as myinsert
 from datetime import datetime
-
-bulk_insert = True
+import sys
 
 def make_job(r):
 	app_id = r[0]
@@ -22,47 +21,7 @@ def make_job(r):
 	return job
 
 ###### custom function start, need to modify according to real case
-def job_upsert_each():
-	conn = sqlite3.connect('./amazon_ec2.db')
-	c = conn.cursor()
-	c.execute('SELECT app_id FROM appid_to_asin_download') ## for testing
-	r = c.fetchone()
-	i = 0
-	t = 0
-	while r != None:
-		job = make_job(r)
-		i = i + 1
-		print i,
-		if i > t + 1000:
-			t = t + 1000
-			print t
-		myinsert.job_upsert(job)
-		r = c.fetchone()
-	print i
-###### custom function end, need to modify according to real case
-
-###### custom function start, need to modify according to real case
-def job_insert_each():
-	conn = sqlite3.connect('./amazon_ec2.db')
-	c = conn.cursor()
-	c.execute('SELECT app_id FROM appid_to_asin_download') ## for testing
-	r = c.fetchone()
-	i = 0
-	t = 0
-	while r != None:
-		job = make_job(r)
-		i = i + 1
-		print i,
-		if i > t + 1000:
-			t = t + 1000
-		job = myinsert.make_job(job_id, job_url, job_file_path, client_id, create_date, update_date, job_status, http_status)
-		myinsert.job_insert(job)
-		r = c.fetchone()
-	print i
-###### custom function end, need to modify according to real case
-
-###### custom function start, need to modify according to real case
-def job_insert_bulk():
+def job_mongodb(option):
 	conn = sqlite3.connect('./amazon_ec2.db')
 	c = conn.cursor()
 	c.execute('SELECT app_id FROM appid_to_asin_download') ## for testing
@@ -71,26 +30,41 @@ def job_insert_bulk():
 	t = 0
 	jobs = []
 	while r != None:
-		#print r
 		job = make_job(r)
-		jobs.append(job)
+		if option == 'upsert_each':
+			myinsert.job_upsert(job, job_target)
+		elif option == 'insert_each':
+			myinsert.job_insert(job, job_target)
+		elif option == 'insert_bulk':
+			jobs.append(job)
 		i = i + 1
-		#print i,
+		if not(option == 'insert_bulk'):
+			print i,
 		if i > t + 1000:
 			t = t + 1000
-			myinsert.job_insert(jobs);
 			print t
-			jobs = []
+			if option == 'insert_bulk':
+				myinsert.job_insert(jobs, job_target);
+				jobs = []
 		r = c.fetchone()
 	print i
 ###### custom function end, need to modify according to real case
 
-
-
 if __name__ == "__main__":
-	print "start"
-	job_insert_bulk()
-	print 'done'
+	print "CMD: format: python db_insert_jobs_appid_to_asin.py [upsert_each | insert_each | insert_bulk]"
+	cmds = sys.argv
+	print len(cmds)
+	print cmds[1]
+	if len(cmds) != 2:
+		print "ERROR: please follow the CMD format"
+		print "CMD: please try again"
+	elif (cmds[1] != 'upsert_each' and cmds[1] != 'insert_each' and cmds[1] != 'insert_bulk'):
+		print "ERROR: please follow the CMD format", cmds
+		print "CMD: please try again"
+	else :
+		print "start"
+		job_mongodb(cmds[1])
+		print 'done'
 	
 
 
