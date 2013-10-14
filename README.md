@@ -8,6 +8,8 @@ WebDownloadJobsManage
 5. user management with a simple web interface: python data push into mongo. learn how to delete data from command, require username and password
 5. design a protocol chart for explation
 5. simplify http_get_or_post method, to keep it simply. 
+6. needs to detect the error show that two many workers are competing for IP, it means a website try to block multiple comptier within a same ip address. 
+7. later problem will be put as issue. 
 
 
 #Introduction:
@@ -74,7 +76,7 @@ a_job = {job_id, job_url, job_file_path, job_status, client_id}
 2. can run under proxy network environment. just need to set the proxy in configure file. have a example to demonstrate how to set up in example. 
 3. job_manger can control how job_work run, it means server side can configure on client by using a web interface on sever. 
 4. develop example on create and push jobs to job_manager, with writing new code (for programmer) or using execl (for non-programmer). 
-5. 
+5. db_inser_jobs_xxx.py can be used to insert new jobs without overwrite existing jobs. 
 
 
 ## reading points
