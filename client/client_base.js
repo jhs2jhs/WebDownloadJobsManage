@@ -52,12 +52,14 @@ function error_log(job_step, function_name, error_message, error_argus){
 //////// event
 /////////////////////////
 var i_tries = 0;
+var i_tries_0 = 0;
 eventEmitter.on('jobs.length=0', function(job_step){
 	console.log("jobs.length=0: %s".blue.italic, job_step)
 	i_tries ++;
-	console.log('tried: '.yellow, i_tries);
-	if (i_tries > global.job_settings.connection_try_max) {
-		eturn
+	i_tries_0 ++;
+	console.log('tried: '.yellow, i_tries, i_tries_0);
+	if (i_tries > global.job_settings.connection_try_max || i_tries_0 > global.job_settings.connection_try_max ) {
+		return
 	}
 	// should log error here as they are actually not error
 	//error_log(job_step, 'jobs.length=0', 'jobs.length=0', 'jobs.length=0');
