@@ -2,13 +2,21 @@ WebDownloadJobsManage
 =====================
 
 # todo
+4. needs to set up client for google play store app interface
+5. needs to set up client for google review scrapping. may be ajax or post
+6. needs to set up for weibo scraping. 
+7. at the same needs to write code for deviance score. 
+
 
 3. each client computer should have a deamen, so if new jobs coming, it should be able to check the code updating on git, get the code of client software, and then call the client process if new jobs coming. at monent, it is all manually. For example, I need to log into each computer to start the client process, and when the job done, the process will stop competely. 
+4. needs to detect the error show that two many workers are competing for IP, it means a website try to block multiple comptier within a same ip address.  search for "website scraping ip restraction and blocking".
+5. provide a easy to use web address. 
+
 4. each client should be able to detect a best fitting web access interval. 
 5. user management with a simple web interface: python data push into mongo. learn how to delete data from command, require username and password
 5. design a protocol chart for explation
 5. simplify http_get_or_post method, to keep it simply. 
-6. needs to detect the error show that two many workers are competing for IP, it means a website try to block multiple comptier within a same ip address. 
+
 7. later problem will be put as issue. 
 
 

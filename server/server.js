@@ -511,6 +511,23 @@ function jobs_mongodb_export_files (req, res){
 	res.send(results);
 }
 
+
+////////////////////////////////////////
+function urls_list(req, res) {
+	urls = {
+		'list all useful urls':'/web_jobs/urls_list',
+		'view jobs progressing and error logs': '/web_jobs/jobs_view',
+		'reset all assigned but not finished jobs back to unsign': '/web_jobs/jobs_reset?client_id=server_test&job_target=XXX',
+		'view settings for jobs':'/web_jobs/jobs_settings?action=view',
+		'triggle a action to dump mongodb': '/web_jobs/dump_action',
+		'files all dumped mongodb files': '/web_jobs/dump_files',
+		'triggle a action to export data from mongodb': '/web_jobs/mongodb_export_action?jobs_target=XXXX',
+		'view a list of files exported from mongodb': '/web_jobs/mongodb_export_files_view?jobs_target=XXXX',
+		'triggle a action to import json data into mongodb from a server file': '/web_jobs/mongodb_import_action'
+	}
+	res.send(urls);
+}
+
 app.use(express.bodyParser());
 app.get('/hello', hello);
 app.get('/web_jobs/jobs_get', jobs_get);
@@ -523,6 +540,7 @@ app.get('/web_jobs/jobs_settings', jobs_settings);
 app.get('/web_jobs/error_log', error_log);
 
 // have to use both directory and static, as directory does not allow to view single files. 
+app.use('./web_jobs/urls_list', urls_list);
 app.use('/web_jobs/dump', express.directory(__dirname + '/dump/web_jobs/', icons=true));
 app.use('/web_jobs/dump', express.static(__dirname + '/dump/web_jobs/'));
 app.get('/web_jobs/dump_files', jobs_mongodb_dump_files);
