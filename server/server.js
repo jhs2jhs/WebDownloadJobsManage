@@ -315,7 +315,7 @@ function jobs_view_job_status(collection_names, collection_names_copy, res, prog
 	}
 	var collection_name = collection_names_copy.pop();
 	console.log(collection_name);
-	if (collection_name == 'jobs_settings') {
+	if (collection_name == 'jobs_settings' || collection_name == 'error_log') {
 		jobs_view_job_status(collection_names, collection_names_copy, res, progress);
 		return
 	}
