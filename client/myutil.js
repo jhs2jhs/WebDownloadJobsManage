@@ -106,7 +106,7 @@ function request_get_http(vars, resp_callback, err_callback){
 	//console.log(req_options);
 	var req = http.request(req_options, function(resp){
 		var body = ''
-		resp.setEncoding('utf8');
+		//resp.setEncoding('utf8');
 		resp.on('data', function (chunk) { // this event is called everytime when transform data
 			body = body + chunk;
 		});

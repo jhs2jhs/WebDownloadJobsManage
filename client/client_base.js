@@ -267,6 +267,7 @@ function client_jobs_get_resp_callback(http_statusCode, vars, resp, body){
 		eventEmitter.emit('jobs.length=0', vars.job_step);
 		return
 	} else {
+		i_tries_0 = 0;
 		ejdb.save(global.my_job_target, jobs, function(err, oid){
 			if (err) {
 				eventEmitter.emit('ejdb_error', 'save', vars.job_step);
@@ -292,14 +293,16 @@ function client_jobs_put(){
 			console.error('jobs_put'.red.bold, "count == 0");
 			eventEmitter.emit('jobs.length=0', 'jobs_put');
 			return;
+		} else {
+			i_tries_0 = 0;
+			jobs = []
+			console.log("** client_jobs_put Found "+ count);
+			while (cursor.next()) {
+				jobs.push(cursor.object());
+			}
+			cursor.close();
+			client_jobs_put_request(jobs);
 		}
-		jobs = []
-		console.log("** client_jobs_put Found "+ count);
-		while (cursor.next()) {
-			jobs.push(cursor.object());
-		}
-		cursor.close();
-		client_jobs_put_request(jobs);
 	});
 }
 
@@ -323,6 +326,7 @@ function client_jobs_put_resp_callback(http_statusCode, vars, resp, body){
 		console.error('client_jobs_put_resp_callback'.red.bold, 'jobs.length == 0')
 		eventEmitter.emit('jobs.length=0', 'jobs_put'); // futher error division
 	} else {
+		i_tries_0 = 0;
 		client_jobs_bulk_remove(jobs, 0);
 	}
 }
@@ -363,6 +367,7 @@ function client_jobs_do_single () {
 			console.error('== client_jobs_do_single'.yellow.bold, "count == 0");
 			eventEmitter.emit('jobs.length=0', 'jobs_do');
 		} else {
+			i_tries_0 = 0;
 			client_jobs_do_download(obj);
 		}
 	});
@@ -375,7 +380,7 @@ function client_jobs_do_download(job){
 }
 
 function client_jobs_do_resp_callback(http_statusCode, vars, resp, body){
-	console.log(http_statusCode);
+	console.log(http_statusCode, 'client_jobs_do_resp_callback');
 	fs.writeFile(vars.job_file_path, body, function(err){
 		if (err) {
 			eventEmitter.emit('fs_error', 'writeFile', vars.job_step);
@@ -387,10 +392,14 @@ function client_jobs_do_resp_callback(http_statusCode, vars, resp, body){
 }
 
 function client_jobs_do_err_callback(error, vars){
+	console.log(error);
 	if (error.message == 'Parse Error') {
 		// this error can be ignored
-		console.log('this error can be ignored======');
-	} else {
+		console.log('this error can be ignored ======1'.red);
+	} else if (error.message == 'connect ECONNREFUSED') {
+		// this error can be ignored
+		console.log('this error can be ignored ======2'.red);
+	}else {
 		// err would already set -1 for http_status in db
 		client_job_do_update(vars.job, -1, myutil.job_status_figure.error_when_reading);
 		// should I emit a error event and also update with sever
