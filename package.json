@@ -10,7 +10,6 @@
 		"express":"*",
 		"ejdb":"*",
 		"request":"*",
-		"tingodb":"*",
 		"mkdirp":"*",
 		"colors":"*",
 		"dict":"*",
