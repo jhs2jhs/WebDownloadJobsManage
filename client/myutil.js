@@ -73,12 +73,17 @@ function request_post_http(vars, resp_callback, err_callback){
 		resp.on('end', function(){ // this even is called to finish the stream
 			resp_callback(resp.statusCode, vars, resp, body);
 		});
+		resp.on('error', function(err){
+			console.log('resp.on.error'.red, err);
+		})
 	});
 	req.on('error', function(e){
 		console.error('request_get_http: '.red.bold, e.message, e);
 		err_callback(e, vars)
 	});
+	//console.log('e1');
 	req.write(vars.post_body, 'utf8')
+	//console.log('e2');
 	req.end()
 }
 

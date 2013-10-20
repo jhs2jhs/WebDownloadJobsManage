@@ -281,7 +281,9 @@ function client_jobs_get_resp_callback(http_statusCode, vars, resp, body){
 ///////////////////////
 ////////// jobs_put
 ///////////////////////
+var jobs_put_t = 0;
 function client_jobs_put(){
+	jobs_put_t = 0;
 	console.log('================ jobs_put ==========================='.blue.italic);
 	ejdb.find(global.my_job_target, {}, function(err, cursor, count) {
 		if (err) {
@@ -297,7 +299,37 @@ function client_jobs_put(){
 			i_tries_0 = 0;
 			jobs = []
 			console.log("** client_jobs_put Found "+ count);
+			jobs_put_t = count;
 			while (cursor.next()) {
+				jobs.push(cursor.object());
+			}
+			cursor.close();
+			client_jobs_put_request(jobs);
+		}
+	});
+}
+function client_jobs_put_i(){
+	console.log('================ jobs_put_i ==========================='.blue.italic);
+	ejdb.find(global.my_job_target, {}, function(err, cursor, count) {
+		if (err) {
+			eventEmitter.emit('ejdb_error', 'find', 'jobs_put');
+				return
+		}
+		if (count == 0) {
+			// next job
+			console.error('jobs_put'.red.bold, "count == 0");
+			eventEmitter.emit('jobs.length=0', 'jobs_put');
+			return;
+		} else {
+			i_tries_0 = 0;
+			jobs = []
+			console.log("** client_jobs_put Found "+ count);
+			var i = 0;
+			while (cursor.next()) {
+				i = i + 1;
+				if (i > 10) {
+					break;
+				}
 				jobs.push(cursor.object());
 			}
 			cursor.close();
@@ -320,7 +352,14 @@ function client_jobs_put_request(jobs) {
 }
 
 function client_jobs_put_resp_callback(http_statusCode, vars, resp, body){
+	console.log('e3');
+	//console.log('e3e3', body, 'e4e4');
+	if (body.indexOf('Error: Request Entity Too Large') > -1) {
+		client_jobs_put_i ();
+		return 
+	}
 	jobs = JSON.parse(body);
+	console.log('e4');
 	console.log(jobs.length);
 	if (jobs.length == 0){
 		console.error('client_jobs_put_resp_callback'.red.bold, 'jobs.length == 0')
@@ -344,7 +383,13 @@ function client_jobs_bulk_remove(jobs, i){
 			}
 		});
 	} else {
-		eventEmitter.emit('job_step_done', 'jobs_put');
+		jobs_put_t = jobs_put_t - i;
+		console.log('jobs_remove', i, jobs_put_t);
+		if (i >= jobs_put_t) {
+			eventEmitter.emit('job_step_done', 'jobs_put');
+		} else {
+			setTimeout(client_jobs_put_i, global.job_settings.web_access_interval*2);
+		}
 	}
 }
 
@@ -424,8 +469,8 @@ function client_job_do_update(job, http_statusCode, job_status){
 
 
 function client_jobs_init(){
-	eventEmitter.emit('job_step_done', 'jobs_init');
-	//eventEmitter.emit('job_step_done', 'jobs_do');
+	//eventEmitter.emit('job_step_done', 'jobs_init');
+	eventEmitter.emit('job_step_done', 'jobs_do');
 }
 
 function main(){
