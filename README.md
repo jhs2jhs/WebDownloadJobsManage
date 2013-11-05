@@ -1,6 +1,12 @@
 WebDownloadJobsManage
 =====================
 
+#
+ls -t # sort by modification time (mtime)
+ls -c # sort by change time (ctime)
+ls -u # sort by access time (atime)
+ls -halt | head -n 3
+
 # todo
 4. needs to set up client for google play store app interface
 5. needs to set up client for google review scrapping. may be ajax or post
@@ -8,6 +14,10 @@ WebDownloadJobsManage
 7. at the same needs to write code for deviance score. 
 8. pay bill to SSC. 
 9. call to eon to sort the issue. 
+10. start to scrape google play store for app single. 
+11. start to scrape review version when mapping is ready 
+12. weibo, 
+13. twitter companies notices. 
 
 
 3. each client computer should have a deamen, so if new jobs coming, it should be able to check the code updating on git, get the code of client software, and then call the client process if new jobs coming. at monent, it is all manually. For example, I need to log into each computer to start the client process, and when the job done, the process will stop competely. 
