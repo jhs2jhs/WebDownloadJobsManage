@@ -29,4 +29,4 @@ server/mongodb_export/*.json
 *.json
 *.pyc
 
-dbs/*
+dbs/google_drive/sample.dat
