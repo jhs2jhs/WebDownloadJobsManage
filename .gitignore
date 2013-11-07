@@ -26,7 +26,6 @@ server/dump/*
 client/CONFIG.js
 
 server/mongodb_export/*.json
-*.json
 *.pyc
 
 dbs/google_drive/sample.dat
