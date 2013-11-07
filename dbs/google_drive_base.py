@@ -75,9 +75,9 @@ FLOW = client.flow_from_clientsecrets(CLIENT_SECRETS,
 
 
 
-def get_gservice_drive(argv):
+def get_gservice_drive():
   # Parse the command-line flags.
-  flags = parser.parse_args(argv[1:])
+  flags = parser.parse_args()
   # If the credentials don't exist or are invalid run through the native client
   # flow. The Storage object will ensure that if successful the good
   # credentials will get written back to the file.

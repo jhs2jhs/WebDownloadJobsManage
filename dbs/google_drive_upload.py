@@ -1,51 +1,76 @@
 import google_drive_base
 import sys
+sys.path.append('./google_drive')
+from apiclient.http import MediaFileUpload
+from datetime import datetime
+import CONFIG
+import pprint
+import os
 
 
-def main(argv):
-  service = google_drive_base.get_gservice_drive(argv)
+def upload_all():
+  service = google_drive_base.get_gservice_drive()
   if service == False:
     return
   folder_id = get_folderid(service)
-  file_id = retrieve_fileid(service, 'hello.txt')
+  p = '.'
+  f_lists = os.listdir(p)
+  for f_list in f_lists:
+    f_fullpath = os.path.join(p, f_list)
+    realpath = os.path.realpath(f_fullpath)
+    fileName, fileExtension = os.path.splitext(f_list)
+    if fileExtension != '.db':
+      continue
+    file_id = get_fileid(service, f_list, folder_id)
+
+def upload_file(file_name):
+  service = google_drive_base.get_gservice_drive()
+  if service == False:
+    return
+  folder_id = get_folderid(service)
+  file_id = get_fileid(service, file_name, folder_id)
+
+def upload_job(job_target):
+  service = google_drive_base.get_gservice_drive()
+  if service == False:
+    return
+  folder_id = get_folderid(service)
+  file_name = '%s_%s.db'%(CONFIG.client_id, job_target)
+  file_id = get_fileid(service, file_name, folder_id)
+
+
+###
+def get_fileid(service, file_name, folder_id):
+  file_id = retrieve_fileid(service, file_name)
+  media_body = MediaFileUpload(file_name, mimetype='text/plain', resumable=True)
+  body = {
+    'title':file_name,
+    'description': CONFIG.folder_name,
+    'mimeType': 'text/plain',
+    'parents':[{'id':folder_id}]
+  }
   if file_id == False:
-    media_body = MediaFileUpload('hello.txt', mimetype='text/plain', resumable=True)
-    body = {
-      'title':'hello.txt',
-      'description': 'WebDownloadJobManager',
-      'mimeType': 'text/plain',
-      'parents':[{'id':fold_id}]
-    }
     f = service.files().insert(body=body, media_body=media_body).execute()
     file_id = f['id']
-    print "** create new file **"
+    print "** create new file **", file_id, file_name
   else:
-    media_body = MediaFileUpload('hello.txt', mimetype='text/plain', resumable=True)
-    body = {
-      'title':'hello.txt',
-      'description': 'WebDownloadJobManager',
-      'mimeType': 'text/plain',
-      'parents':[{'id':fold_id}]
-    }
     f = service.files().update(fileId=file_id, newRevision= datetime.now(), body=body, media_body=media_body).execute()
     file_id = f['id']
-    print "** update  file **"
-  print "**", file_id
-  return
-
+    print "** update file **", file_id, file_name
+  return file_id
 
 def get_folderid(service):
-  fold_id = retrieve_fileid(service, 'WebDownloadJobsManage')
+  fold_id = retrieve_fileid(service, CONFIG.folder_name)
   if fold_id == False:
     body = {
-      'title':'WebDownloadJobsManage',
+      'title':CONFIG.folder_name,
       'mimeType': 'application/vnd.google-apps.folder'  ## mimeType has to be captial 
     }
     folder = service.files().insert(body=body).execute()
     fold_id = folder['id']
     print "** create new fold **"
-    pprint.pprint(folder)
-  print "** folder_id", fold_id
+    #pprint.pprint(folder)
+  print "** folder_id", fold_id, CONFIG.folder_name
   return fold_id
   
 
@@ -56,7 +81,7 @@ def retrieve_fileid(service, file_name):
     param = {}
     param['q'] = q
     files = service.files().list(**param).execute()
-    print files
+    #pprint.pprint(files)
     result.extend(files['items'])
   except errors.HttpError, error:
     print 'An error occurred: %s' % error
@@ -80,4 +105,17 @@ def retrieve_fileid(service, file_name):
 #
 #   https://developers.google.com/api-client-library/python/start/get_started
 if __name__ == '__main__':
-  main(sys.argv)
+  upload_type = raw_input("** choose from [all, file, job]: ")
+  upload_type = upload_type.lower().strip()
+  if upload_type == 'all':
+    upload_all()
+  elif upload_type == 'file':
+    file_name = raw_input('** type your filename: ')
+    file_name = file_name.lower().strip()
+    upload_file(file_name)
+  elif upload_type == 'job':
+    job_target = raw_input('** type your job_target: ')
+    job_target = job_target.lower().strip()
+    upload_file(job_target)
+  else:
+    print "** wrong argument"
