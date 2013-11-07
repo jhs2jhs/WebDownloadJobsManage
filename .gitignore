@@ -30,3 +30,6 @@ server/mongodb_export/*.json
 *.pyc
 
 dbs/google_drive/sample.dat
+
+post-process/CONFIG.py
+dbs/CONFIG.py
