@@ -1,2 +1,2 @@
 client_id = 'jian-mac'
-folder_name = 'WebDownloadJobManage'
+folder_name = 'WebDownloadJobManager'
