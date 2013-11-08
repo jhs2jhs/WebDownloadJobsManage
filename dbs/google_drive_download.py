@@ -8,20 +8,22 @@ import pprint
 import os
 
 
-def upload_all():
+
+
+def download_all():
   service = google_drive_base.get_gservice_drive()
   if service == False:
     return
-  folder_id = get_folderid(service)
-  p = '.'
-  f_lists = os.listdir(p)
-  for f_list in f_lists:
-    f_fullpath = os.path.join(p, f_list)
-    realpath = os.path.realpath(f_fullpath)
-    fileName, fileExtension = os.path.splitext(f_list)
-    if fileExtension != '.db':
-      continue
-    file_id = get_fileid(service, f_list, folder_id)
+  folder_id = retrieve_fileid(service, CONFIG.folder_name)
+  if folder_id == False:
+    return
+  result = []
+  q = '%s in parents'%folder_id
+  param = {}
+  param['q'] = q
+  files = service.files().list(**param).execute()
+  pprint.pprint(files)
+
 
 def upload_file(file_name):
   service = google_drive_base.get_gservice_drive()
@@ -30,13 +32,42 @@ def upload_file(file_name):
   folder_id = get_folderid(service)
   file_id = get_fileid(service, file_name, folder_id)
 
-def upload_job(job_target):
+def download_job(job_target):
   service = google_drive_base.get_gservice_drive()
   if service == False:
     return
   folder_id = get_folderid(service)
   file_name = '%s_%s.db'%(CONFIG.client_id, job_target)
-  file_id = get_fileid(service, file_name, folder_id)
+  files = retrieve_file(service, file_name)
+  pprint.pprint(files)
+  if files == False or len(files) == 0:
+    return
+  download_url = files['items'][0].get('downloadUrl')
+  print download_url
+  if download_url:
+    resp, content = service._http.request(download_url)
+    if resp.status == 200:
+      print 'Status: %s'%resp
+      print content
+    else:
+      print 'an error occurred: %s'%resp
+  else:
+    return None
+
+
+def retrieve_file(service, file_name):
+  result = []
+  q = 'title = "%s"'%file_name
+  try:
+    param = {}
+    param['q'] = q
+    files = service.files().list(**param).execute()
+    return files
+  except errors.httpError, error:
+    print 'An error occurred: %s' % error
+    return files
+
+
 
 
 ###
@@ -108,7 +139,7 @@ if __name__ == '__main__':
   upload_type = raw_input("** choose from [all, file, job]: ")
   upload_type = upload_type.lower().strip()
   if upload_type == 'all':
-    upload_all()
+    download_all()
   elif upload_type == 'file':
     file_name = raw_input('** type your filename: ')
     file_name = file_name.lower().strip()
@@ -116,6 +147,6 @@ if __name__ == '__main__':
   elif upload_type == 'job':
     job_target = raw_input('** type your job_target: ')
     job_target = job_target.lower().strip()
-    upload_job(job_target)
+    download_job(job_target)
   else:
     print "** wrong argument"

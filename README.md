@@ -18,6 +18,10 @@ ls -halt | head -n 3
 11. start to scrape review version when mapping is ready 
 12. weibo, 
 13. twitter companies notices. 
+14. 
+14. linux can not process correctly. 
+15. drive_download can not work properly 
+
 
 
 3. each client computer should have a deamen, so if new jobs coming, it should be able to check the code updating on git, get the code of client software, and then call the client process if new jobs coming. at monent, it is all manually. For example, I need to log into each computer to start the client process, and when the job done, the process will stop competely. 
