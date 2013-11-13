@@ -19,7 +19,7 @@ def upload_all():
     f_fullpath = os.path.join(p, f_list)
     realpath = os.path.realpath(f_fullpath)
     fileName, fileExtension = os.path.splitext(f_list)
-    if fileExtension != '.db':
+    if fileExtension != '.json':
       continue
     file_id = get_fileid(service, f_list, folder_id)
 
@@ -35,7 +35,7 @@ def upload_job(job_target):
   if service == False:
     return
   folder_id = get_folderid(service)
-  file_name = '%s_%s.db'%(CONFIG.client_id, job_target)
+  file_name = '%s.json'%(job_target)
   file_id = get_fileid(service, file_name, folder_id)
 
 
