@@ -6,7 +6,8 @@ job_target = 'appid_to_asin'
 sql_init = '''
 CREATE TABLE IF NOT EXISTS post_appid_to_asin (
 	app_id TEXT NOT NULL UNIQUE,
-	asin TEXT NOT NULL UNIQUE
+	asin TEXT NOT NULL UNIQUE,
+	UNIQUE (app_id, asin)
 );
 '''
 

@@ -32,3 +32,4 @@ dbs/google_drive/sample.dat
 
 post-process/CONFIG.py
 dbs/CONFIG.py
+*.copy
