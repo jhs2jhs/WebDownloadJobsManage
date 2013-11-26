@@ -36,6 +36,24 @@ ls -halt | head -n 3
 7. later problem will be put as issue. 
 
 
+
+# Configuration for local server:
+1. install Ubuntu Sever 13.10:
+2. install Nodejs: https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
+	3. switch between gui and terminal: ctrl+alt+f1 to terminal, ctrl+alt+f7 to gui. http://askubuntu.com/questions/292069/switching-between-gui-and-terminal-question
+	3. set keyboard to default: https://help.ubuntu.com/community/NumLock
+	4.  upgeade from ubuntu 12.03: https://help.ubuntu.com/community/QuantalUpgrades 
+	5. get version number from terminal: lsb_release -a
+	6. 
+3. configuration port forwarding at virgin media super hub:
+	4. difference between port forwarding & port triggling: http://boards.portforward.com/viewtopic.php?t=19964 . Basically, "Port Forwarding" opens the ports you specifiy PERMANENTLY. when you turn the router on, it automatically allows incoming connections from the Internet to use those ports at any time. "Port Triggering" only opens the ports when your computer sends an OUTGONG connection using the "Trigger Port". "Triggering" adds a bit of extra security, but because of the way it works, it is NOT compatible with most Internet applications which require INCOMING connections, such as game servers, web servers or filesharing. http://www.dslreports.com/faq/5799 
+	4. configuration the port forwarding: http://help.virginmedia.com/system/selfservice.controller?CMD=VIEW_ARTICLE&ARTICLE_ID=27550&CURRENT_CMD=SEARCH&CONFIGURATION=1001&PARTITION_ID=1&USERTYPE=1&LANGUAGE=en&COUNTY=us&VM_CUSTOMER_TYPE=Cable
+	 
+4. 
+
+
+
+
 #Introduction:
 
 find all the baby music, put it into ipod and also burn a disk, so I can play it for mingye in the car and when wake up
