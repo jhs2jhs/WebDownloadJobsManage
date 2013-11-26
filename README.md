@@ -44,13 +44,22 @@ ls -halt | head -n 3
 	3. set keyboard to default: https://help.ubuntu.com/community/NumLock
 	4.  upgeade from ubuntu 12.03: https://help.ubuntu.com/community/QuantalUpgrades 
 	5. get version number from terminal: lsb_release -a
-	6. 
+	6. ubuntu server 13.10 will make computer into sleep when lid been closed: http://askubuntu.com/questions/360615/ubuntu-server-13-10-now-goes-to-sleep-when-closing-laptop-lid
 3. configuration port forwarding at virgin media super hub:
 	4. difference between port forwarding & port triggling: http://boards.portforward.com/viewtopic.php?t=19964 . Basically, "Port Forwarding" opens the ports you specifiy PERMANENTLY. when you turn the router on, it automatically allows incoming connections from the Internet to use those ports at any time. "Port Triggering" only opens the ports when your computer sends an OUTGONG connection using the "Trigger Port". "Triggering" adds a bit of extra security, but because of the way it works, it is NOT compatible with most Internet applications which require INCOMING connections, such as game servers, web servers or filesharing. http://www.dslreports.com/faq/5799 
-	4. configuration the port forwarding: http://help.virginmedia.com/system/selfservice.controller?CMD=VIEW_ARTICLE&ARTICLE_ID=27550&CURRENT_CMD=SEARCH&CONFIGURATION=1001&PARTITION_ID=1&USERTYPE=1&LANGUAGE=en&COUNTY=us&VM_CUSTOMER_TYPE=Cable
-	 
-4. 
+	4. configuration the port forwarding: http://help.virginmedia.com/system/selfservice.controller?CMD=VIEW_ARTICLE&ARTICLE_ID=27550&CURRENT_CMD=SEARCH&CONFIGURATION=1001&PARTITION_ID=1&USERTYPE=1&LANGUAGE=en&COUNTY=us&VM_CUSTOMER_TYPE=Cable 
+4. initial ssh server:
+	5. openssh server: https://help.ubuntu.com/10.04/serverguide/openssh-server.html 
+5. check ports in ubuntu server:
+	6. sudo netstat -ntlp 
+	7. check on superhub whether 8080-9000 port has been forward. 
+6. 
 
+
+
+# notes from ubuntu server:
+1. RAID is a method of configuring multiple hard drives to act as one, reducing the probability of catastrophic data loss in case of drive failure. RAID is implemeted in either software or hardware. 
+2. aptitude is a menu-driven, text-based frontend to the Advanced Packaging Tool system. 
 
 
 
