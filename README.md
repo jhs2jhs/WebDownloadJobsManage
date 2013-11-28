@@ -53,13 +53,32 @@ ls -halt | head -n 3
 5. check ports in ubuntu server:
 	6. sudo netstat -ntlp 
 	7. check on superhub whether 8080-9000 port has been forward. 
-6. 
+6. install ejdb:
+	7. install dependency: sudo apt-get install g++ zlib1g zlib1g-dev
+	7. install ejdb: sudo npm install -g ejdb 
+7. start server:
+	8. ./start
+	9. visit url: xxx:8080/hello 
+8. 
 
 
 
 # notes from ubuntu server:
 1. RAID is a method of configuring multiple hard drives to act as one, reducing the probability of catastrophic data loss in case of drive failure. RAID is implemeted in either software or hardware. 
 2. aptitude is a menu-driven, text-based frontend to the Advanced Packaging Tool system. 
+3. ip address: 
+4. netmask: the subnet mask or simply netmask is a local bit mask, or set of flags which seperate the portions of an ip address significant to the network from the bits significant to the subnetwork. 
+5. network address: the network address represents the bytes comprising the network portion of an ip adress. 
+6. broadcast address: the broadcast address is an ip address which allows network data to be sent simulatneously to all hosts on a given subnetwork rather than specifying a particular host. 
+7. gateway address: a gateway address is the ip address through which a particular network, or host on a network, may be reached. 
+8. nameserver address: nameserver address represent the up address of dns. 
+9. the ip address, netmask, network address, broadcast address, and gateway address are typically specified via the appropriate directives in the file /etc/network/interfaces. 
+10. icmp: the internet control messaging protocol is an extension to the ip as defined in the rfc and supports network packets containing control, error, and informational messages. icmp is used by such network applications as the ping utilit, which can determine the availability of a network host or device. 
+11. grep: global regular expressin print
+	12. grep "boot" a_file: grep will loop through every line of the file "a_file" and print out every line that contains the text "boot". 
+	12. grep -n "boo" a_file: show the lines numbers of matches. 
+	12. grep -l "boo" *: the -l option prints only the filenames of files in the query that have lines that match the search string. 
+12. 
 
 
 
