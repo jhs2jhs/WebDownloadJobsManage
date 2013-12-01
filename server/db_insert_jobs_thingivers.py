@@ -1,11 +1,13 @@
 ###### configuration start  ########
 job_target = 'thingiverse'
-client_id = 'server_test'
 ###### configuration finish ########
 import sqlite3
 import db_insert_jobs_base as myinsert
 from datetime import datetime
 import sys
+import platform
+client_id = platform.node()
+print "## hello, ", client_id, job_target  
 
 def make_job(i):
 	thing_id = str(i);
@@ -26,8 +28,9 @@ def job_mongodb(option):
 	i = 0
 	t = 0
 	jobs = []
-	while i < 170000:
+	while i < 200000:
 		job = make_job(i)
+		#print job
 		if option == 'upsert_each':
 			myinsert.job_upsert(job, job_target)
 		elif option == 'insert_each':
@@ -51,7 +54,7 @@ if __name__ == "__main__":
 	print "CMD: format: python db_insert_jobs_appid_to_asin.py [upsert_each | insert_each | insert_bulk]"
 	cmds = sys.argv
 	print len(cmds)
-	print cmds[1]
+	print cmds
 	if len(cmds) != 2:
 		print "ERROR: please follow the CMD format"
 		print "CMD: please try again"

@@ -15,6 +15,7 @@ var fs = require('fs');
 var filesize = require('filesize');
 var os = require('os');
 var exec = require('child_process').exec;
+console.log("## hello, ", os.hostname(), "##");
 
 function db_opt(db_callback){
 	MongoClient.connect(mongodb_url, function(err, db){
@@ -515,6 +516,7 @@ function jobs_mongodb_export_files (req, res){
 ////////////////////////////////////////
 function urls_list(req, res) {
 	urls = {
+		'Hello': 'WebDownloadJobManager server', 
 		'list all useful urls':'/web_jobs/urls_list',
 		'view jobs progressing and error logs': '/web_jobs/jobs_view',
 		'reset all assigned but not finished jobs back to unsign': '/web_jobs/jobs_reset?client_id=server_test&job_target=XXX',
@@ -529,6 +531,7 @@ function urls_list(req, res) {
 }
 
 app.use(express.bodyParser());
+app.get('/', urls_list);
 app.get('/hello', hello);
 app.get('/web_jobs/jobs_get', jobs_get);
 app.get('/web_jobs/jobs_view', jobs_view);
@@ -552,3 +555,4 @@ app.get('/web_jobs/mongodb_export_files_view', jobs_mongodb_export_files);
 app.get('/web_jobs/mongodb_import_action', jobs_mongodb_import);
 
 app.listen(8080);
+console.log("## WebDownloadJobManager server start at "+new Date().toGMTString()+" ##")

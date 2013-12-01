@@ -4,7 +4,7 @@ from datetime import datetime
 
 mongodb_url = 'mongodb://127.0.0.1:27017/'
 client = MongoClient(mongodb_url)
-db = client['web_jobs']
+db = client['web_jobs_server']
 print "** DB Collections: ", db.collection_names()
 
 #collection = db[job_target]
@@ -29,6 +29,7 @@ def make_job(job_id, job_url, job_file_path, client_id, create_date, update_date
 ## consider with ejdb does not support custom _id, so I have to use upsert 
 def job_upsert(job, collection):
 	j = db[collection].update({'job_id': job['job_id']}, {'$set':job}, upsert=True, multi=True)
+	print j
 
 def job_insert(job, collection):
 	try:
