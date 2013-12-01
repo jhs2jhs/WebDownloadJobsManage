@@ -21,6 +21,9 @@ ls -halt | head -n 3
 14. 
 14. linux can not process correctly. 
 15. drive_download can not work properly 
+16. purpose next step: even locally, use mongodb not ejdb, as mngodb is more comonly to see. 
+	17. there is no way to rename a database in mongodb, but you can copy into a new database, and then delete a existing database, http://stackoverflow.com/questions/9201832/how-do-you-rename-a-mongodb-database
+	17.  mongo shell quick reference: http://docs.mongodb.org/manual/reference/mongo-shell/ 
 
 
 
