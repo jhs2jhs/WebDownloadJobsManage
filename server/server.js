@@ -15,7 +15,7 @@ var fs = require('fs');
 var filesize = require('filesize');
 var os = require('os');
 var exec = require('child_process').exec;
-console.log("## hello, ", os.hostname(), "##");
+console.log("## hello server, ", os.hostname(), "##");
 
 function db_opt(db_callback){
 	MongoClient.connect(mongodb_url, function(err, db){

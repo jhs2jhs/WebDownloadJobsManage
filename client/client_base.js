@@ -1,15 +1,5 @@
 // configuration needs to be done in each client instance file. 
 
-
-///////// configuration start ///////////
-//global.my_job_target = 'appid_to_asin'; 
-//global.job_settings = {
-//	'client_job_request_count': 10, 
-//	'web_access_interval': 5000, // how long wait for next web visit, set this to prevent blocking from IP. 
-//	'connection_try_max': 20,
-//};
-///////// configuration end ///////////
-
 /////////
 module.exports.main = main;
 /////////
@@ -19,14 +9,30 @@ module.exports.main = main;
 var myconfig = require('./CONFIG.js');
 var myutil = require('./myutil.js')
 var querystring = require('querystring');
-var EJDB = require('ejdb');
-console.log('DB file: ', 'client_db_'+global.my_job_target);
-var ejdb = EJDB.open('client_db_'+global.my_job_target, EJDB.DEFAULT_OPEN_MODE);
-console.log(ejdb.isOpen());
+var MongoClient = require('mongodb').MongoClient;
+var mongodb_url = 'mongodb://127.0.0.1:27017/web_jobs_client'
+
 var fs = require('fs');
 myutil.folder_init(global.my_job_target);
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
+
+console.log("## hello client, ", os.hostname(), "##");
+
+function db_opt(db_callback){
+	MongoClient.connect(mongodb_url, function(err, db){
+		if (err) {
+			throw err;
+			console.error(err.red.bold)
+			//db_opt(db_callback)
+		} else {
+			db.on('error', function(err){
+				console.log('== mongodb error event:', err);
+			});
+			db_callback(db);
+		}
+	});
+}
 
 
 function error_log(job_step, function_name, error_message, error_argus){
@@ -268,12 +274,17 @@ function client_jobs_get_resp_callback(http_statusCode, vars, resp, body){
 		return
 	} else {
 		i_tries_0 = 0;
-		ejdb.save(global.my_job_target, jobs, function(err, oid){
-			if (err) {
-				eventEmitter.emit('ejdb_error', 'save', vars.job_step);
-				return
-			}
-			eventEmitter.emit('job_step_done', vars.job_step);
+		db_opt(function(db){
+			db.collection(global.my_job_target).save(jobs, function(err){
+				db.close();
+				if (err) {
+					eventEmitter.emit('ejdb_error', 'save', vars.job_step);
+					return
+				} else {
+					eventEmitter.emit('job_step_done', vars.job_step);
+					return
+				}
+			});
 		});
 	}
 }
@@ -285,27 +296,26 @@ var jobs_put_t = 0;
 function client_jobs_put(){
 	jobs_put_t = 0;
 	console.log('================ jobs_put ==========================='.blue.italic);
-	ejdb.find(global.my_job_target, {}, function(err, cursor, count) {
-		if (err) {
-			eventEmitter.emit('ejdb_error', 'find', 'jobs_put');
-				return
-		}
-		if (count == 0) {
-			// next job
-			console.error('jobs_put'.red.bold, "count == 0");
-			eventEmitter.emit('jobs.length=0', 'jobs_put');
-			return;
-		} else {
-			i_tries_0 = 0;
-			jobs = []
-			console.log("** client_jobs_put Found "+ count);
-			jobs_put_t = count;
-			while (cursor.next()) {
-				jobs.push(cursor.object());
-			}
-			cursor.close();
-			client_jobs_put_request(jobs);
-		}
+	db_opt(function(db){
+		var query = db.collection(global.my_job_target)
+			.find({})
+			.toArray(function(err, docs){
+				db.close();
+				if (err) {
+					eventEmitter.emit('ejdb_error', 'find', 'jobs_put');
+					return
+				}
+				if (docs.length == 0) {
+					// next job
+					console.error('jobs_put'.red.bold, "count == 0");
+					eventEmitter.emit('jobs.length=0', 'jobs_put');
+					return;
+				} else {
+					jobs = docs;
+					console.log("** client_jobs_put Found "+ docs.length);
+					client_jobs_put_request(jobs);
+				}
+			});
 	});
 }
 function client_jobs_put_i(){
