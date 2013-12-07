@@ -42,6 +42,13 @@ ls -halt | head -n 3
 7. later problem will be put as issue. 
 
 
+#unit test
+1. mocha: http://visionmedia.github.io/mocha/
+2. assert: http://nodejs.org/api/assert.html
+3. bdd: behavior driven development
+4. tdd: test driven development
+5. mocha tutorial: http://brianstoner.com/blog/testing-in-nodejs-with-mocha/ 
+
 
 # Configuration for local server:
 1. install Ubuntu Sever 13.10:
