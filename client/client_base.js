@@ -221,6 +221,9 @@ eventEmitter.on('fs_error', function(action, job_step){
 ///////// jobs_settings
 ///////////////////////
 function client_jobs_settings_get(){
+	client_jobs_settings_get_cp(client_jobs_settings_get_resp_callback, http_connect_error);
+}
+function client_jobs_settings_get_cp(resp_callback, err_callback){
 	console.log('================ jobs_setting_get ==========================='.blue.italic);
 	url_query = querystring.stringify({
 		'settings_action':myutil.jobs_settings_actions.view
@@ -228,7 +231,7 @@ function client_jobs_settings_get(){
 	uri = myconfig.job_server_address+'/jobs_settings?'+url_query;
 	var vars = {uri:uri, job_step:'jobs_settings'};
 	console.log('** client_jobs_settings_get', vars.uri);
-	myutil.request_get_http(vars, client_jobs_settings_get_resp_callback, http_connect_error);
+	myutil.request_get_http(vars, resp_callback, err_callback);
 }
 function client_jobs_settings_get_resp_callback(http_statusCode, vars, resp, body){
 	if (http_statusCode != 200) {

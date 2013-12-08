@@ -61,6 +61,7 @@ function urls_list(req, res) {
 		'Hello': 'WebDownloadJobManager server', 
 		'list all useful urls':'/web_jobs/urls_list',
 		'test connect': '/web_jobs/test_connect',
+		'add new jobs': '/web_jobs/jobs_add',
 		'view jobs progressing and error logs': '/web_jobs/jobs_view',
 		'reset all assigned but not finished jobs back to unsign': '/web_jobs/jobs_reset?client_id=server_test&job_target=XXX',
 		'view settings for jobs':'/web_jobs/jobs_settings?action=view',
@@ -146,21 +147,20 @@ var job_status_figure = {
 
 ////////// jobs add ///////////////
 function jobs_add(req, res) {
-	log_dev('jobs_put'.blue.italic, req.body.job_target, req.body.client_id, (new Date().toGMTString()).blue.italic);
+	console.log('jobs_put'.blue.italic, req.body.job_target, req.body.client_id, (new Date().toGMTString()).blue.italic);
 	qs = req.body;
 	client_id = qs.client_id;
 	job_target = qs.job_target;
 	jobs = qs.jobs;
-	log_dev(jobs.length);
-	//console.log(req.body)
-	//console.log(client_id == undefined, jobs == undefined, job_target == undefined)
+	log_dev('job.length: ' + jobs.length);
 	if (client_id == undefined || jobs == undefined || job_target == undefined) {
+		log_dev('wrong json');
 		res.send(400, 'wrong json');
 		return
 	} else {
 		// jobs is already become json, so no need to parse again
 	}
-	jobs_add_bulk_insert(jobs, 0, res)
+	jobs_add_bulk_update(jobs, 0, res)
 }
 
 function jobs_add_bulk_update(jobs, i, res){
@@ -171,13 +171,13 @@ function jobs_add_bulk_update(jobs, i, res){
 				.update(
 					{'job_id': job.job_id}, 
 					{$set: job},
-					{multi: false},
+					{multi: false, upsert:true},
 					function (err) {
 						db.close();
 						if (err) {
 							console.error('jobs_add_bulk_update'.red.bold, err.red.color)
-							eventEmitter.emit('mongodb_error', 'update', job_target, client_id_sever, 'jobs_put', err);
-							res.send(400, 'db update error')
+							eventEmitter.emit('mongodb_error', 'add', job_target, client_id_sever, 'jobs_put', err);
+							res.send(400, 'db add error')
 							return
 						} else {
 							i = i + 1
@@ -617,7 +617,7 @@ function app_route(app){
 	app.get('/', urls_list);
 	app.get('/hello', hello);
 	app.get('/web_jobs/test_connect', test_connect);
-	app.get('/web_jobs/jobs_add', jobs_add);
+	app.post('/web_jobs/jobs_add', jobs_add);
 	app.get('/web_jobs/jobs_get', jobs_get);
 	app.get('/web_jobs/jobs_view', jobs_view);
 	app.get('/web_jobs/jobs_reset', jobs_reset);
