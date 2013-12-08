@@ -7,6 +7,11 @@ var node_env = process.env.NODE_ENV || 'development';
 var env = require("../env.json");
 var myenv = env[node_env];
 var server_base = require('../server/server_base.js');
+var client_base = require('../client/client_base.js');
+
+var querystring = require('querystring');
+var os = require('os');
+var exec = require('child_process').exec, child;
 
 // mongodb
 //var MongoClient = require('mongodb').MongoClient;
@@ -14,8 +19,9 @@ var server_base = require('../server/server_base.js');
 //var ObjectID = require('mongodb').ObjectID;
 
 //
+console.log("============ actual testing start from here ==================");
 
-/*
+/////////////////////////////////////////////////////////////////////////////
 describe('SERVER initialise ...', function(){
 
 	it("process.env.NODE_ENV should equal to development or null", function(){
@@ -36,12 +42,49 @@ describe('SERVER initialise ...', function(){
 			done();
 		}
 	});
-});*/
+})
+
+/////////////////////////////////////////////////////////////////////////////
+/* //it is not necessary to test in everystep
+describe('SERVER MONGODB settings push', function(){
+	it('run python to insert job_settings', function(done){
+		child = exec('python ../server/db_insert_jobs_settings.py', function(err, stdout, stderr) {
+			//console.log('stdout:'+stdout);
+			assert.equal(err, null);
+			done();
+		});
+	})
+});
+*/
 
 
-//
+
+/////////////////////////////////////////////////////////////////////////////
 describe('SERVER MONGODB jobs add', function(){
+	client_base.set_myenv();
+	client_base.set_my_job_target('thingiverse');
+	client_base.set_folder();
+	client_base.set_my_job_settings({ // it does not matter too much for this option
+		'client_job_request_count': 5, 
+		'web_access_interval': 5000, // how long wait for next web visit, set this to prevent blocking from IP. 
+		'connection_try_max': 10,	
+	});
 
+	/////////jobs settings ///////////
+	it("thingiverse: get job settings", function(done){
+		client_base.client_jobs_settings_get_cp(resp_callback, err_callback);
+		function resp_callback(http_statusCode, vars, resp, body){
+			http_statusCode.should.eql(200); // redirect to view of jobs_settings
+			client_base.client_jobs_settings_get_body_process(body);
+			assert.equal(true, (Object.keys(client_base.get_my_job_settings()).length > 0));
+			done();
+		}
+		function err_callback(http_statusCode, vars, resp, body){				
+			console.log('err_callback', http_statusCode, vars, body);
+			done();
+		}
+	});
+	
 	///////// jobs add ////////////
 	var jobs = []
 	job_target = 'thingiverse';
@@ -83,7 +126,7 @@ describe('SERVER MONGODB jobs add', function(){
 	
 	uri = 'http://localhost:8080/web_jobs/jobs_add';
 	var vars = {uri:uri, post_body: post_body};
-	it("add jobs to thingiverse, 10", function(done){
+	it("thingiverse: add jobs, 10", function(done){
 		vars.should.have.property('uri');
 		vars.should.have.property('post_body');
 		util_client.request_post_http(vars, resp_callback, err_callback);
@@ -99,7 +142,23 @@ describe('SERVER MONGODB jobs add', function(){
 	});
 
 	//////////////// jobs get ////////////////
-
-
+	it('thingiverse: get jobs', function(done){
+		client_base.client_jobs_get_cp(resp_callback, err_callback);
+		function resp_callback(http_statusCode, vars, resp, body){
+			http_statusCode.should.eql(200);
+			var jobs = JSON.parse(body);
+			assert.equal(true, jobs.length == 10);
+			console.log('=======');
+			client_base.client_jobs_get_db_save(jobs, function(){}, function(){});
+			//console.log(body);
+			console.log('---------')
+			done();
+		}
+		function err_callback(e, vars){
+			console.log('err_callback', e);
+			done()
+		}
+	});
+	
 	
 });

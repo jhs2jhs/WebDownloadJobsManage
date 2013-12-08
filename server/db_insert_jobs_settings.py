@@ -3,7 +3,8 @@ from datetime import datetime
 
 mongodb_url = 'mongodb://127.0.0.1:27017/'
 client = MongoClient(mongodb_url)
-db = client['web_jobs']
+db = client['web_jobs_server']
+db = client['test_web_jobs_server']
 print "** DB Collections: ", db.collection_names()
 
 collection = db['jobs_settings']

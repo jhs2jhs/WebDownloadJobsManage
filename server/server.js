@@ -8,13 +8,13 @@ if ((['development', 'production'].indexOf(node_env)) == -1) {
 	process.exit(1);
 }
 var myenv = env[node_env];
-console.log("## env: ", node_env); 
+console.log("## server env: ", node_env); 
 console.log(myenv);
 console.log()
 
 // mongodb
 var MongoClient = require('mongodb').MongoClient;
-var mongodb_url = 'mongodb://127.0.0.1:27017/'+myenv['mongodb_server_name']
+var mongodb_url = 'mongodb://'+myenv['mongodb_server_address']+'/'+myenv['mongodb_server_name']
 var ObjectID = require('mongodb').ObjectID;
 
 // express
@@ -351,6 +351,7 @@ function jobs_settings(req, res){
 		client_id = qs.client_id;
 		settings_key = qs.settings_key;
 		settings_value = qs.settings_value;
+		console.log(job_target, settings_key, settings_value);
 		if (job_target == undefined || client_id == undefined || settings_key == undefined || settings_value == undefined) {
 			console.error("jobs_settings setttings".red.bold, 'job_target == undefined || client_id == undefined || settings_key == undefined || settings_value == undefined');
 			res.send(400, 'settings_action settings: job_target == undefined || client_id == undefined || settings_key == undefined || settings_value == undefined')

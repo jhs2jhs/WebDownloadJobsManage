@@ -1,31 +1,15 @@
 // configuration needs to be done in each client instance file. 
-var myenv = {}; ////////////////////
-function set_myenv(){
-	console.log('## set_myenv');
-	var env = require('../env.json');
-	var node_env = process.env.NODE_ENV || 'development';
-	if ((['development', 'production'].indexOf(node_env)) == -1) {
-		var msg = '!! process.env.NODE_ENV should from [undefined, development, production]';
-		console.log(msg);
-		process.exit(1);
-	}
-	myenv = env[node_env];
-	console.log("## client env: ", node_env); 
-	console.log(myenv);
-	console.log()
+var env = require('../env.json');
+var node_env = process.env.NODE_ENV || 'development';
+if ((['development', 'production'].indexOf(node_env)) == -1) {
+	var msg = '!! process.env.NODE_ENV should from [undefined, development, production]';
+	console.log(msg);
+	process.exit(1);
 }
-var my_job_settings = {}; /////////////////////
-function set_my_job_settings(job_settings) {
-	console.log('## set_my_job_settings', job_settings);
-}
-var my_job_target = ''; /////////////////////
-function set_my_job_target(job_target) {
-	console.log('## set_my_job_target', job_target);
-	my_job_target = job_target;
-}
-function set_folder(){
-	myutil.folder_init(myenv['data_row_path'], my_job_target);
-}
+var myenv = env[node_env];
+console.log("## client env: ", node_env); 
+console.log(myenv);
+console.log()
 
 //console.log('reading configuration ...');
 var myconfig = require('./CONFIG.js');
@@ -33,12 +17,7 @@ var myutil = require('./myutil.js');
 
 // mongodb
 var MongoClient = require('mongodb').MongoClient;
-var mongodb_url = '';
-function get_mongodb_url(){
-	mongodb_url = 'mongodb://'+myenv['mongodb_client_address']+'/'+myenv['mongodb_client_name'];
-	console.log(mongodb_url, 'cool');
-	return mongodb_url;
-}
+var mongodb_url = 'mongodb://'+myenv['mongodb_client_address']+'/'+myenv['mongodb_client_name']
 var ObjectID = require('mongodb').ObjectID;
 
 // others
@@ -48,29 +27,21 @@ var os = require('os');
 var querystring = require('querystring');
 var fs = require('fs');
 
-
 console.log("## hello client, ", os.hostname(), "##");
 
 function db_opt(db_callback){
-	console.log('999');
-	mongodb_url = get_mongodb_url()
 	MongoClient.connect(mongodb_url, function(err, db){
-		console.log('00000');
 		if (err) {
-			console.log('111111');
 			throw err;
 			console.error(err.red.bold)
 			//db_opt(db_callback)
 		} else {
-			console.log('222222');
 			db.on('error', function(err){
 				console.log('== mongodb error event:', err);
 			});
-			console.log('wwwwwwwwwww');
 			db_callback(db);
 		}
 	});
-	console.log('88888');
 }
 
 
@@ -78,7 +49,7 @@ function error_log(job_step, function_name, error_message, error_argus){
 	url_query = querystring.stringify({
 		'client_id':myconfig.my_client_id, 
 		'job_step':job_step,
-		'job_target': my_job_target,
+		'job_target': global.my_job_target,
 		'function_name': function_name,
 		'error_message': error_message,
 		'error_argus': error_argus
@@ -103,7 +74,7 @@ eventEmitter.on('jobs.length=0', function(job_step){
 	i_tries ++;
 	i_tries_0 ++;
 	console.log('tried: '.yellow, i_tries, i_tries_0);
-	if (i_tries > job_settings.connection_try_max || i_tries_0 > job_settings.connection_try_max ) {
+	if (i_tries > global.job_settings.connection_try_max || i_tries_0 > global.job_settings.connection_try_max ) {
 		return
 	}
 	// should log error here as they are actually not error
@@ -111,7 +82,7 @@ eventEmitter.on('jobs.length=0', function(job_step){
 	switch(job_step){
 		case 'jobs_get':
 			console.error("FINISH: jobs_get_no_more_job".blue.bold)
-			setTimeout(client_jobs_do, job_settings.web_access_interval);
+			setTimeout(client_jobs_do, global.job_settings.web_access_interval);
 			//client_jobs_do();
 			break;
 		case 'jobs_do':
@@ -127,7 +98,7 @@ eventEmitter.on('http_connect_wrong_status', function(job_step, http_statusCode)
 	console.error("ERROR: client_%s_get_resp_callback".red.bold, job_step, http_statusCode);
 	i_tries ++;
 	console.log('tried: '.yellow, i_tries);
-	if (i_tries > job_settings.connection_try_max) {
+	if (i_tries > global.job_settings.connection_try_max) {
 		return
 	}
 	error_log(job_step, job_step, 'http_connect_wrong_status', http_statusCode);
@@ -155,7 +126,7 @@ eventEmitter.on('http_connect_error', function(job_step, e){
 	console.error("ERROR: client_%s_get_err_callback".red.bold, job_step, e)
 	i_tries ++;
 	console.log('tried: '.yellow, i_tries);
-	if (i_tries > job_settings.connection_try_max) {
+	if (i_tries > global.job_settings.connection_try_max) {
 		return
 	}
 	error_log(job_step, 'http_connect_wrong_status', e.toString(), e.toString());
@@ -206,7 +177,7 @@ eventEmitter.on('ejdb_error', function(action, job_step){
 	console.error("ERROR: ejdb, %s".red.bold, job_step)
 	i_tries ++;
 	console.log('tried: '.yellow, i_tries);
-	if (i_tries > job_settings.connection_try_max) {
+	if (i_tries > global.job_settings.connection_try_max) {
 		return
 	}
 	error_log(job_step, action, 'ejdb_error', '')
@@ -234,7 +205,7 @@ eventEmitter.on('fs_error', function(action, job_step){
 	console.error("ERROR: fs, %s".red.bold, job_step)
 	i_tries ++;
 	console.log('tried: '.yellow, i_tries);
-	if (i_tries > job_settings.connection_try_max) {
+	if (i_tries > global.job_settings.connection_try_max) {
 		return
 	}
 	switch(job_step) {
@@ -260,16 +231,16 @@ eventEmitter.on('fs_error', function(action, job_step){
 ///////// jobs_settings
 ///////////////////////
 function client_jobs_settings_get(){
-	console.log('================ jobs_setting_get ==========================='.blue.italic);
 	client_jobs_settings_get_cp(client_jobs_settings_get_resp_callback, http_connect_error);
 }
 function client_jobs_settings_get_cp(resp_callback, err_callback){
+	console.log('================ jobs_setting_get ==========================='.blue.italic);
 	url_query = querystring.stringify({
 		'settings_action':myutil.jobs_settings_actions.view
 	});
-	uri = myenv['job_server_address']+'/jobs_settings?'+url_query;
+	uri = myconfig.job_server_address+'/jobs_settings?'+url_query;
 	var vars = {uri:uri, job_step:'jobs_settings'};
-	//console.log('** client_jobs_settings_get', vars.uri);
+	console.log('** client_jobs_settings_get', vars.uri);
 	myutil.request_get_http(vars, resp_callback, err_callback);
 }
 function client_jobs_settings_get_resp_callback(http_statusCode, vars, resp, body){
@@ -277,21 +248,15 @@ function client_jobs_settings_get_resp_callback(http_statusCode, vars, resp, bod
 		eventEmitter.emit('http_connect_wrong_status', vars.job_step, http_statusCode);
 		return
 	}
-	client_jobs_update(body);
-	console.log(my_job_settings)
-	eventEmitter.emit('job_step_done', vars.job_step);
-}
-function client_jobs_settings_get_body_process(body){
 	var jobs_settings = JSON.parse(body);
 	for (var i = 0; i < jobs_settings.length; i++ ){
 		var jobs_setting = jobs_settings[i];
-		if (jobs_setting.job_target == my_job_target) {
-			my_job_settings[jobs_setting['settings_key']] = parseInt(jobs_setting['settings_value']);
+		if (jobs_setting.job_target == global.my_job_target) {
+			global.job_settings[jobs_setting['settings_key']] = parseInt(jobs_setting['settings_value']);
 		}
 	}
-}
-function get_my_job_settings(){
-	return my_job_settings;
+	console.log(global.job_settings)
+	eventEmitter.emit('job_step_done', vars.job_step);
 }
 
 ///////////////////////
@@ -299,19 +264,17 @@ function get_my_job_settings(){
 ///////////////////////
 function client_jobs_get(){
 	console.log('================ jobs_get ==========================='.blue.italic);
-	client_jobs_get_cp(client_jobs_get_resp_callback, http_connect_error)
-}
-function client_jobs_get_cp(resp_callback, err_callback){
 	url_query = querystring.stringify({
-		'client_id':os.hostname(), 
-		'client_job_request_count':my_job_settings.client_job_request_count,
-		'job_target': my_job_target
+		'client_id':myconfig.my_client_id, 
+		'client_job_request_count':global.job_settings.client_job_request_count,
+		'job_target': global.my_job_target
 	});
-	uri = myenv['job_server_address']+'/jobs_get?'+url_query;
+	uri = myconfig.job_server_address+'/jobs_get?'+url_query;
 	var vars = {uri:uri, job_step:'jobs_get'};
-	//console.log('** client_jobs_get', vars.uri)
-	myutil.request_get_http(vars, resp_callback, err_callback);
+	console.log('** client_jobs_get', vars.uri)
+	myutil.request_get_http(vars, client_jobs_get_resp_callback, http_connect_error);
 }
+
 function client_jobs_get_resp_callback(http_statusCode, vars, resp, body){
 	if (http_statusCode != 200) {
 		eventEmitter.emit('http_connect_wrong_status', vars.job_step, http_statusCode);
@@ -324,30 +287,19 @@ function client_jobs_get_resp_callback(http_statusCode, vars, resp, body){
 		return
 	} else {
 		i_tries_0 = 0;
-		client_jobs_get_db_save(my_job_target, jobs, 
-			function(){
-				eventEmitter.emit('ejdb_error', 'save', vars.job_step);
-			}, 
-			function(){
-				eventEmitter.emit('job_step_done', vars.job_step);
+		db_opt(function(db){
+			db.collection(global.my_job_target).save(jobs, function(err){
+				db.close();
+				if (err) {
+					eventEmitter.emit('ejdb_error', 'save', vars.job_step);
+					return
+				} else {
+					eventEmitter.emit('job_step_done', vars.job_step);
+					return
+				}
 			});
-	}
-}
-function client_jobs_get_db_save(jobs, err_callback, callback){
-	console.log(my_job_target, 'hello');
-	db_opt(function(db){
-		console.log(my_job_target, 'world');
-		db.collection(my_job_target).save(jobs, function(err){
-			db.close();
-			if (err) {
-				err_callback();
-				return
-			} else {
-				callback();
-				return
-			}
 		});
-	});
+	}
 }
 
 ///////////////////////
@@ -358,7 +310,7 @@ function client_jobs_put(){
 	jobs_put_t = 0;
 	console.log('================ jobs_put ==========================='.blue.italic);
 	db_opt(function(db){
-		var query = db.collection(my_job_target)
+		var query = db.collection(global.my_job_target)
 			.find({})
 			.toArray(function(err, docs){
 				db.close();
@@ -381,7 +333,7 @@ function client_jobs_put(){
 }
 function client_jobs_put_i(){
 	console.log('================ jobs_put_i ==========================='.blue.italic);
-	ejdb.find(my_job_target, {}, function(err, cursor, count) {
+	ejdb.find(global.my_job_target, {}, function(err, cursor, count) {
 		if (err) {
 			eventEmitter.emit('ejdb_error', 'find', 'jobs_put');
 				return
@@ -412,7 +364,7 @@ function client_jobs_put_i(){
 function client_jobs_put_request(jobs) {
 	var post_body = {
 		'client_id':myconfig.my_client_id, 
-		'job_target': my_job_target,
+		'job_target': global.my_job_target,
 		'jobs': jobs
 	};
 	post_body = JSON.stringify(post_body);
@@ -443,7 +395,7 @@ function client_jobs_put_resp_callback(http_statusCode, vars, resp, body){
 
 function client_jobs_bulk_remove(jobs, i){
 	if ( i < jobs.length ) {
-		ejdb.remove(my_job_target, jobs[i]._id, function(err){
+		ejdb.remove(global.my_job_target, jobs[i]._id, function(err){
 			if (err) {
 				console.error('client_jobs_bulk_remove'.red.bold, 'ejdb.remove');
 				eventEmitter.emit('ejdb_error', 'remove', 'jobs_put');
@@ -459,7 +411,7 @@ function client_jobs_bulk_remove(jobs, i){
 		if (i >= jobs_put_t) {
 			eventEmitter.emit('job_step_done', 'jobs_put');
 		} else {
-			setTimeout(client_jobs_put_i, job_settings.web_access_interval*2);
+			setTimeout(client_jobs_put_i, global.job_settings.web_access_interval*2);
 		}
 	}
 }
@@ -473,7 +425,7 @@ function client_jobs_do(){
 	client_jobs_do_single();
 }
 function client_jobs_do_single () {
-	ejdb.findOne(my_job_target, {'job_status': {$lte: myutil.job_status_figure.unread}}, function(err, obj) {
+	ejdb.findOne(global.my_job_target, {'job_status': {$lte: myutil.job_status_figure.unread}}, function(err, obj) {
 		if (err) {
 			eventEmitter.emit('ejdb_error', 'findOne', 'jobs_do');
 			return;
@@ -527,12 +479,12 @@ function client_job_do_update(job, http_statusCode, job_status){
 	job.update_date = new Date().toGMTString();
 	job.job_status = job_status;
 	job.client_id = myconfig.my_client_id;
-	ejdb.save(my_job_target, job, function(err, oid){
+	ejdb.save(global.my_job_target, job, function(err, oid){
 		if (err) {
 			eventEmitter.emit('ejdb_error', 'save', vars.job_step);
 			return
 		} else {
-			setTimeout(client_jobs_do_single, job_settings.web_access_interval);
+			setTimeout(client_jobs_do_single, global.job_settings.web_access_interval);
 			return
 		}
 	});
@@ -545,6 +497,7 @@ function client_jobs_init(){
 }
 
 function main(){
+	myutil.folder_init(myenv['data_row_path'], global.my_job_target);
 	client_jobs_init();
 }
 
@@ -552,19 +505,7 @@ function main(){
 //main();
 
 /////////
-// configuration
-module.exports.set_my_job_settings = set_my_job_settings;
-module.exports.set_my_job_target = set_my_job_target;
-module.exports.set_myenv = set_myenv;
-module.exports.set_folder = set_folder;
-// job_settings
-module.exports.client_jobs_settings_get_cp = client_jobs_settings_get_cp;
-module.exports.client_jobs_settings_get_body_process = client_jobs_settings_get_body_process;
-module.exports.get_my_job_settings = get_my_job_settings;
-// jobs_get
-module.exports.client_jobs_get_cp = client_jobs_get_cp;
-module.exports.client_jobs_get_db_save = client_jobs_get_db_save;
-//main
 module.exports.main = main;
+module.exports.client_jobs_settings_get_cp = client_jobs_settings_get_cp;
 /////////
 

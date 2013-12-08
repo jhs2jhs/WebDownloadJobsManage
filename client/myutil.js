@@ -127,8 +127,8 @@ function request_get_http(vars, resp_callback, err_callback){
 }
 
 ///////////////////////////////////////////////////
-function folder_init(my_job_target){
-	folder_path = '../../data_row/web_jobs/'+my_job_target;
+function folder_init(data_row_path, my_job_target){
+	folder_path = '../../'+data_row_path+'/web_jobs/'+my_job_target;
 	mkdirp(folder_path, function(err){
 		console.error(err)
 	})
