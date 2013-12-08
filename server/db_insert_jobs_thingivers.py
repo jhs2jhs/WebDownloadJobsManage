@@ -22,7 +22,6 @@ def make_job(i):
 	job = myinsert.make_job(job_id, job_url, job_file_path, client_id, create_date, update_date, job_status, http_status)
 	return job
 
-
 ###### custom function start, need to modify according to real case
 def job_mongodb(option):
 	i = 0

@@ -1,14 +1,29 @@
-// global setting should appear in my_config.js file
 
-var express = require('express');
-var app = express();
-var sprintf = require('util').format;
+// env settings for development and production mode
+var env = require("../env.json");
+var node_env = process.env.NODE_ENV || 'development';
+if ((['development', 'production'].indexOf(node_env)) == -1) {
+	var msg = '!! process.env.NODE_ENV should from [undefined, development, production]';
+	console.log(msg);
+	process.exit(1);
+}
+var myenv = env[node_env];
+console.log("## env: ", node_env); 
+console.log(myenv);
+console.log()
+
+// mongodb
 var MongoClient = require('mongodb').MongoClient;
-var mongodb_url = 'mongodb://127.0.0.1:27017/web_jobs_server'
+var mongodb_url = 'mongodb://127.0.0.1:27017/'+myenv['mongodb_server_name']
 var ObjectID = require('mongodb').ObjectID;
+
+// express
+var express = require('express');
+
+
+// others
+var sprintf = require('util').format;
 var colors = require('colors');
-var collection_name_jobs_settings = 'jobs_settings';
-var client_id_server = 'jobs_manager_server';
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
 var fs = require('fs');
@@ -16,6 +31,47 @@ var filesize = require('filesize');
 var os = require('os');
 var exec = require('child_process').exec;
 console.log("## hello server, ", os.hostname(), "##");
+console.log();
+
+var collection_name_jobs_settings = 'jobs_settings';
+var client_id_server = 'jobs_manager_server';
+
+function log_dev(e){
+	if (node_env == 'development') {
+		console.log(e);
+	}
+}
+
+
+// test connect
+function test_connect(req, res){
+	log_dev('test_connect'.red);
+	res.send("WebDownloadJobManager connect succeed")
+	//res.status(404).send('Not found');
+}
+
+function hello(req, res){
+	log_dev('hello'.red);
+	res.send('Hello World, Jobs Manager');
+}
+
+////////////////////////////////////////
+function urls_list(req, res) {
+	urls = {
+		'Hello': 'WebDownloadJobManager server', 
+		'list all useful urls':'/web_jobs/urls_list',
+		'test connect': '/web_jobs/test_connect',
+		'view jobs progressing and error logs': '/web_jobs/jobs_view',
+		'reset all assigned but not finished jobs back to unsign': '/web_jobs/jobs_reset?client_id=server_test&job_target=XXX',
+		'view settings for jobs':'/web_jobs/jobs_settings?action=view',
+		'triggle a action to dump mongodb': '/web_jobs/dump_action',
+		'files all dumped mongodb files': '/web_jobs/dump_files',
+		'triggle a action to export data from mongodb': '/web_jobs/mongodb_export_action?jobs_target=XXXX',
+		'view a list of files exported from mongodb': '/web_jobs/mongodb_export_files_view?jobs_target=XXXX',
+		'triggle a action to import json data into mongodb from a server file': '/web_jobs/mongodb_import_action'
+	}
+	res.send(urls);
+}
 
 function db_opt(db_callback){
 	MongoClient.connect(mongodb_url, function(err, db){
@@ -80,9 +136,6 @@ eventEmitter.on('mongodb_error', function(action, job_target, client_id, job_ste
 	})
 });
 
-function hello(req, res){
-	res.send('Hello World, Jobs Manager');
-}
 
 var job_status_figure = {
 	'unread': 1,
@@ -90,6 +143,53 @@ var job_status_figure = {
 	'done': 3,
 	'error_when_reading': 4
 }
+
+////////// jobs add ///////////////
+function jobs_add(req, res) {
+	log_dev('jobs_put'.blue.italic, req.body.job_target, req.body.client_id, (new Date().toGMTString()).blue.italic);
+	qs = req.body;
+	client_id = qs.client_id;
+	job_target = qs.job_target;
+	jobs = qs.jobs;
+	log_dev(jobs.length);
+	//console.log(req.body)
+	//console.log(client_id == undefined, jobs == undefined, job_target == undefined)
+	if (client_id == undefined || jobs == undefined || job_target == undefined) {
+		res.send(400, 'wrong json');
+		return
+	} else {
+		// jobs is already become json, so no need to parse again
+	}
+	jobs_add_bulk_insert(jobs, 0, res)
+}
+
+function jobs_add_bulk_update(jobs, i, res){
+	if (i < jobs.length) {
+		job = JSON.parse(JSON.stringify(jobs[i])); //should I validate the job format before inserting?
+		db_opt(function(db){
+			var query = db.collection(job_target)
+				.update(
+					{'job_id': job.job_id}, 
+					{$set: job},
+					{multi: false},
+					function (err) {
+						db.close();
+						if (err) {
+							console.error('jobs_add_bulk_update'.red.bold, err.red.color)
+							eventEmitter.emit('mongodb_error', 'update', job_target, client_id_sever, 'jobs_put', err);
+							res.send(400, 'db update error')
+							return
+						} else {
+							i = i + 1
+							jobs_add_bulk_update(jobs, i, res)
+						}
+					});
+		});
+	} else {
+		res.send(jobs);
+	}
+}
+
 
 //////// jobs_get /////////////
 function jobs_get(req, res) {
@@ -506,53 +606,56 @@ function jobs_mongodb_export_files (req, res){
 		results[file_name]['link'] = '/web_jobs/mongodb_export_files/'+file_name;  // how to get the full url, please
 
 	}
-	//console.log(app.settings);
-	//console.log(process.env);
 	console.log(os.hostname());
 	res.send(results);
 }
 
 
-////////////////////////////////////////
-function urls_list(req, res) {
-	urls = {
-		'Hello': 'WebDownloadJobManager server', 
-		'list all useful urls':'/web_jobs/urls_list',
-		'view jobs progressing and error logs': '/web_jobs/jobs_view',
-		'reset all assigned but not finished jobs back to unsign': '/web_jobs/jobs_reset?client_id=server_test&job_target=XXX',
-		'view settings for jobs':'/web_jobs/jobs_settings?action=view',
-		'triggle a action to dump mongodb': '/web_jobs/dump_action',
-		'files all dumped mongodb files': '/web_jobs/dump_files',
-		'triggle a action to export data from mongodb': '/web_jobs/mongodb_export_action?jobs_target=XXXX',
-		'view a list of files exported from mongodb': '/web_jobs/mongodb_export_files_view?jobs_target=XXXX',
-		'triggle a action to import json data into mongodb from a server file': '/web_jobs/mongodb_import_action'
-	}
-	res.send(urls);
+
+// express app routing
+function app_route(app){
+	app.get('/', urls_list);
+	app.get('/hello', hello);
+	app.get('/web_jobs/test_connect', test_connect);
+	app.get('/web_jobs/jobs_add', jobs_add);
+	app.get('/web_jobs/jobs_get', jobs_get);
+	app.get('/web_jobs/jobs_view', jobs_view);
+	app.get('/web_jobs/jobs_reset', jobs_reset);
+	//app.get('/web_jobs/jobs_backup_export', jobs_export);
+	//app.post('/web_jobs/jobs_backup_import', jobs_import);
+	app.post('/web_jobs/jobs_put', jobs_put);
+	app.get('/web_jobs/jobs_settings', jobs_settings);
+	app.get('/web_jobs/error_log', error_log);
+	app.use('/web_jobs/urls_list', urls_list);
+
+	// have to use both directory and static, as directory does not allow to view single files. 
+	app.use('/web_jobs/dump', express.directory(__dirname + '/dump/web_jobs/', icons=true));
+	app.use('/web_jobs/dump', express.static(__dirname + '/dump/web_jobs/'));
+	app.get('/web_jobs/dump_files', jobs_mongodb_dump_files);
+	app.get('/web_jobs/dump_action', jobs_mongodb_dump_action);
+	app.get('/web_jobs/mongodb_export_action', jobs_mongodb_export);
+	app.use('/web_jobs/mongodb_export_files', express.static(__dirname + '/mongodb_export/'));
+	app.use('/web_jobs/mongodb_export_files', express.directory(__dirname + '/mongodb_export/', icons=true));
+	app.get('/web_jobs/mongodb_export_files_view', jobs_mongodb_export_files);
+	app.get('/web_jobs/mongodb_import_action', jobs_mongodb_import);
 }
 
-app.use(express.bodyParser());
-app.get('/', urls_list);
-app.get('/hello', hello);
-app.get('/web_jobs/jobs_get', jobs_get);
-app.get('/web_jobs/jobs_view', jobs_view);
-app.get('/web_jobs/jobs_reset', jobs_reset);
-//app.get('/web_jobs/jobs_backup_export', jobs_export);
-//app.post('/web_jobs/jobs_backup_import', jobs_import);
-app.post('/web_jobs/jobs_put', jobs_put);
-app.get('/web_jobs/jobs_settings', jobs_settings);
-app.get('/web_jobs/error_log', error_log);
+function main(){
+	var app = express();
+	app.use(express.bodyParser());
+	app.listen(8080);
+	app_route(app);
+	console.log("## WebDownloadJobManager server start at "+new Date().toGMTString()+" ##")
+}
 
-// have to use both directory and static, as directory does not allow to view single files. 
-app.use('./web_jobs/urls_list', urls_list);
-app.use('/web_jobs/dump', express.directory(__dirname + '/dump/web_jobs/', icons=true));
-app.use('/web_jobs/dump', express.static(__dirname + '/dump/web_jobs/'));
-app.get('/web_jobs/dump_files', jobs_mongodb_dump_files);
-app.get('/web_jobs/dump_action', jobs_mongodb_dump_action);
-app.get('/web_jobs/mongodb_export_action', jobs_mongodb_export);
-app.use('/web_jobs/mongodb_export_files', express.static(__dirname + '/mongodb_export/'));
-app.use('/web_jobs/mongodb_export_files', express.directory(__dirname + '/mongodb_export/', icons=true));
-app.get('/web_jobs/mongodb_export_files_view', jobs_mongodb_export_files);
-app.get('/web_jobs/mongodb_import_action', jobs_mongodb_import);
+if (require.main == module) {
+	main();
+}
 
-app.listen(8080);
-console.log("## WebDownloadJobManager server start at "+new Date().toGMTString()+" ##")
+module.exports.main = main;
+
+
+
+
+
+
