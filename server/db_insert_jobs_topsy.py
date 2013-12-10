@@ -1,3 +1,51 @@
+import sys
+import codecs
+import sqlite3
+import os
+import time
+
+def get_eventwindow(file_source):
+    print "## get_eventwindow"
+    event_windows = {}
+    f = codecs.open(file_source, mode='r', encoding='utf-8')
+    #c = conn.cursor()
+    i = 0
+    while 1:
+        line = f.readline()
+        i = i + 1
+        if not line:
+            break
+        if i <= 2:
+            continue
+        line = line.strip()
+        ls = line.split('\t')
+        rank = ls[0].strip()
+        company_name = ls[1].strip().lower()
+        date_quator = ls[2].strip()
+        announce_date = ls[4].strip()
+        event_date = ls[5].strip()
+        event_date_index = ls[6].strip()
+        abnormal_return = ls[7].strip()
+        #print rank, company_name,  announce_date, event_date, event_date_index
+        if not event_windows.has_key(company_name): # we have to choose company_name, as company_name is the only way to identify
+            event_windows[company_name] = {}
+            event_windows[company_name]['rank'] = rank
+            event_windows[company_name]['announce_date'] = {}
+        if not event_windows[company_name]['announce_date'].has_key(announce_date):
+            event_windows[company_name]['announce_date'][announce_date] = {}
+        if not event_windows[company_name]['announce_date'][announce_date].has_key(event_date):
+            event_windows[company_name]['announce_date'][announce_date][event_date] = {}
+            event_windows[company_name]['announce_date'][announce_date][event_date]['event_date_index'] = event_date_index
+    f.close()
+    return event_windows
+
+if __name__ == "__main__":
+    fi = "./ting_eventwindow.txt"
+    event_windows = get_eventwindow(fi)
+    print event_windows['rite aid']
+    ##fs = get_tw_ids(fs, './Fortune100 Twitter IDs.txt')
+
+'''
 ###### configuration start  ########
 job_target = 'thingiverse'
 ###### configuration finish ########
@@ -13,7 +61,7 @@ def make_job(i):
 	thing_id = str(i);
 	job_id = 't_'+thing_id;
 	job_url = 'http://www.thingiverse.com/thing:'+thing_id ##+'/'  ## do not forge to add / in the end
-	job_file_path = 'web_jobs/%s/%s.html'%(job_target, job_id)
+	job_file_path = '../../data_row/web_jobs/%s/%s.html'%(job_target, job_id)
 	client_id = 'db_insert_row.py'
 	create_date = str(datetime.now())
 	update_date = str(datetime.now())
@@ -64,6 +112,8 @@ if __name__ == "__main__":
 		print "start"
 		job_mongodb(cmds[1])
 		print 'done'
+
+'''
 	
 
 

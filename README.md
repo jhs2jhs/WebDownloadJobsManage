@@ -42,6 +42,12 @@ ls -halt | head -n 3
 7. later problem will be put as issue. 
 
 
+#mongodb connection:
+1. http://mongodb.github.io/node-mongodb-native/api-generated/db.html#stats
+2. 
+
+
+
 #unit test
 1. mocha: http://visionmedia.github.io/mocha/
 2. assert: http://nodejs.org/api/assert.html

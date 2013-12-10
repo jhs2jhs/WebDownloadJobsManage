@@ -36,3 +36,5 @@ dbs/CONFIG.py
 
 aws/dump/*
 aws/mongodb_export/*
+
+*.txt

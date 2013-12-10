@@ -12,13 +12,13 @@ print collection
 
 job_settings = [
 	#######
-	{'job_target':'appid_to_asin', 'settings_key':'web_access_interval', 'settings_value':'1000'},
-	{'job_target':'appid_to_asin', 'settings_key':'client_job_request_count', 'settings_value':'10'},
-	{'job_target':'appid_to_asin', 'settings_key':'connection_try_max', 'settings_value':'10'},
+	{'job_target':'appid_to_asin', 'settings_key':'web_access_interval', 'settings_value':1000},
+	{'job_target':'appid_to_asin', 'settings_key':'client_job_request_count', 'settings_value':10},
+	{'job_target':'appid_to_asin', 'settings_key':'connection_try_max', 'settings_value':10},
 	########
-	{'job_target':'thingiverse', 'settings_key':'web_access_interval', 'settings_value':'1000'},
-	{'job_target':'thingiverse', 'settings_key':'client_job_request_count', 'settings_value':'10'},
-	{'job_target':'thingiverse', 'settings_key':'connection_try_max', 'settings_value':'10'}
+	{'job_target':'thingiverse', 'settings_key':'web_access_interval', 'settings_value':1000},
+	{'job_target':'thingiverse', 'settings_key':'client_job_request_count', 'settings_value':10},
+	{'job_target':'thingiverse', 'settings_key':'connection_try_max', 'settings_value':10}
 ]
 
 def job_settings_init():
@@ -50,4 +50,5 @@ def job_setting_upsert(job_target, settings_key, settings_value, create_date, up
 if __name__ == "__main__":
 	print "start"
 	job_settings_init()
+	#db.close()
 	print 'done'
