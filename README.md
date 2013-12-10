@@ -44,7 +44,7 @@ ls -halt | head -n 3
 
 #mongodb connection:
 1. http://mongodb.github.io/node-mongodb-native/api-generated/db.html#stats
-2. 
+2. http://knowledgelayer.softlayer.com/procedure/configure-mongodb-networking on external web services. 
 
 
 
