@@ -8,7 +8,7 @@ var mylib_jobs = require('./lib_jobs.js');
 var mylib_util = require('./lib_util.js');
 
 var myjobs = new mylib_jobs.MyJobs();
-mylib_client.myjobs_init(myjobs, 'topsy_tw_username', function(){main()});
+mylib_client.myjobs_init(myjobs, 'topsy_fortuner_tops', function(){main()});
 
 myjobs.eventEmitter.on('err_mongodb', function(which_db, function_name, err){
 	mylib_util.event_print('err_mongodb', which_db, function_name, err);
@@ -58,10 +58,6 @@ function main(){
 }
 
 
-
-http://otter.topsy.com/search.js?callback=jQuery183031899071275256574_1386779308614&q=from%3Ariteaid&type=tweet&offset=0&perpage=10&mintime=1316649600&maxtime=1316736000&call_timestamp=1386779308989&apikey=09C43A9B270A470B8EB8F2946A9369F3&_=1386779309870
-
-
 function jobs_do_download(job){
 	mylib_util.step_print("#### jobs_do_download() ####");
 	var job_file_path = '../../'+myjobs.myenv['data_row_path']+"/web_jobs/"+myjobs.jobs_target+"/"+job.job_id+".html";
@@ -74,12 +70,13 @@ function jobs_do_resp_callbck(http_statusCode, vars, resp, body){
 	mylib_util.step_print("#### jobs_do_resp_callback() ####", http_statusCode);
 	if (http_statusCode == 200) {
 		myjobs.wrong_http_status_i = 0;
+		/* // I did not test whether more than 200 houndard, but needs to be check afterwords. 
 		tw = JSON.parse(body)
 		tw_l = tw.response.list
 		console.log('response.list: ', tw_l.length)
 		if (tw_l.length >= 100){
 			console.log(tw)
-		}
+		}*/
 		mylib_client.file_write(myjobs, vars.job, vars.job_file_path, body);
 		return;
 	} else { // needs to increase settings automatically 

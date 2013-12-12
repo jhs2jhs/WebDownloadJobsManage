@@ -1,5 +1,5 @@
 ###### configuration start  ########
-job_target = 'topsy_tw_username'
+job_target = 'topsy_fortuner_tops'
 ###### configuration finish ########
 import sqlite3
 import db_insert_jobs_base as myinsert

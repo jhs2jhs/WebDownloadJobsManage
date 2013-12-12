@@ -20,9 +20,9 @@ job_settings = [
 	{'job_target':'thingiverse', 'settings_key':'client_job_request_count', 'settings_value':10},
 	{'job_target':'thingiverse', 'settings_key':'connection_try_max', 'settings_value':10},
 	########
-	{'job_target':'topsy_tw_username', 'settings_key':'web_access_interval', 'settings_value':1000},
-	{'job_target':'topsy_tw_username', 'settings_key':'client_job_request_count', 'settings_value':10},
-	{'job_target':'topsy_tw_username', 'settings_key':'connection_try_max', 'settings_value':10}
+	{'job_target':'topsy_fortuner_tops', 'settings_key':'web_access_interval', 'settings_value':1000},
+	{'job_target':'topsy_fortuner_tops', 'settings_key':'client_job_request_count', 'settings_value':10},
+	{'job_target':'topsy_fortuner_tops', 'settings_key':'connection_try_max', 'settings_value':10}
 ]
 
 def job_settings_init():
