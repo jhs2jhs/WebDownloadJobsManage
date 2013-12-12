@@ -8,16 +8,7 @@ var mylib_jobs = require('./lib_jobs.js');
 var mylib_util = require('./lib_util.js');
 
 var myjobs = new mylib_jobs.MyJobs();
-myjobs.jobs_target = 'thingiverse';
-myjobs.client_id = os.hostname();
-myjobs.myenv = mylib_client.get_env();
-
-
-mylib_client.get_dbs(myjobs, function(db_s, db_c){
-	myjobs.db_server = db_s;
-	myjobs.db_client = db_c;
-	main();
-});
+mylib_client.myjobs_init(myjobs, 'thingiverse', function(){main()});
 
 myjobs.eventEmitter.on('err_mongodb', function(which_db, function_name, err){
 	mylib_util.event_print('err_mongodb', which_db, function_name, err);

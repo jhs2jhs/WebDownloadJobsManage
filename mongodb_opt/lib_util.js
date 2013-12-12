@@ -1,5 +1,6 @@
 var colors = require('colors');
 var util = require('util');
+var mkdirp = require('mkdirp');
 
 function step_print(){
 	process.stdout.write((new Date()).toGMTString().red+' ');
@@ -17,6 +18,13 @@ function event_print(){
 	console.log();
 }
 
+function folder_init(data_row_path, my_job_target){
+	folder_path = '../../'+data_row_path+'/web_jobs/'+my_job_target;
+	mkdirp(folder_path, function(err){
+		console.error(err)
+	})
+}
 
 module.exports.step_print = step_print;
 module.exports.event_print = event_print;
+module.exports.folder_init = folder_init;

@@ -1,6 +1,7 @@
 var mongodb = require('mongodb');
 var color = require('colors');
 var fs = require("fs");
+var os = require('os');
 var mylib_util = require('./lib_util.js');
 
 
@@ -45,6 +46,21 @@ function get_dbs(myjobs, cp){
 			});
 		});
 	});
+}
+
+function myjobs_init(myjobs, jobs_target, cp){
+	myjobs.jobs_target = jobs_target;
+	myjobs.client_id = os.hostname();
+	myjobs.myenv = get_env();
+
+	mylib_util.folder_init(myjobs.myenv['data_row_path'], myjobs.jobs_target);
+
+	get_dbs(myjobs, function(db_s, db_c){
+		myjobs.db_server = db_s;
+		myjobs.db_client = db_c;
+		cp();
+	});
+	console.log(myjobs);
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -267,6 +283,7 @@ function file_write(myjobs, job, job_file_path, body){
 
 module.exports.get_env = get_env;
 module.exports.get_dbs = get_dbs;
+module.exports.myjobs_init = myjobs_init;
 module.exports.jobs_settings_from_server = jobs_settings_from_server;
 module.exports.jobs_get_from_server = jobs_get_from_server;
 module.exports.jobs_do_in_client = jobs_do_in_client;

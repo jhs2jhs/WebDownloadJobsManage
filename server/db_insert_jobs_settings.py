@@ -4,7 +4,7 @@ from datetime import datetime
 mongodb_url = 'mongodb://127.0.0.1:27017/'
 client = MongoClient(mongodb_url)
 db = client['web_jobs_server']
-#db = client['test_web_jobs_server']
+db = client['test_web_jobs_server']
 print "** DB Collections: ", db.collection_names()
 
 collection = db['jobs_settings']
@@ -18,7 +18,11 @@ job_settings = [
 	########
 	{'job_target':'thingiverse', 'settings_key':'web_access_interval', 'settings_value':1000},
 	{'job_target':'thingiverse', 'settings_key':'client_job_request_count', 'settings_value':10},
-	{'job_target':'thingiverse', 'settings_key':'connection_try_max', 'settings_value':10}
+	{'job_target':'thingiverse', 'settings_key':'connection_try_max', 'settings_value':10},
+	########
+	{'job_target':'topsy_tw_username', 'settings_key':'web_access_interval', 'settings_value':1000},
+	{'job_target':'topsy_tw_username', 'settings_key':'client_job_request_count', 'settings_value':10},
+	{'job_target':'topsy_tw_username', 'settings_key':'connection_try_max', 'settings_value':10}
 ]
 
 def job_settings_init():

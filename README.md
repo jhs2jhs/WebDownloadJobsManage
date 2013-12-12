@@ -42,6 +42,30 @@ ls -halt | head -n 3
 7. later problem will be put as issue. 
 
 
+
+# Topsy API
+1. https://code.google.com/p/otterapi/wiki/Resources?tm=6
+2. the api is accessible via the uri: http://otter.topsy.com
+3. all requests are implemented via HTTP GET. 
+4. apikey: can get from topsy html webpage. 
+5. /search: list of reulsts for a query. 
+	6. q: required. 
+	7. window: optial.
+	8. type: tweets
+6. query syntax: https://code.google.com/p/otterapi/wiki/QuerySyntax
+	7. from: twitter_username
+7. list paramters: https://code.google.com/p/otterapi/wiki/ResListParameters
+	8. page: page number of the reulst set ( default 1, max: 10)
+	8. perpage: limit number of reulsts per page (default 10, max: 100)
+	8. offset: offset from which to start the results, should be set to last-offset parameter returned in the previous.
+	8. mintime: earlist date/time to restrict a result set. unix-timestamp format. 
+	8. maxtime: most recent date/time to restrict a result set, unix-timestamp format. 
+9. http://otter.topsy.com/search.json?q=from:riteaid&page=1&perpage=100&type=tweet&mintime=1325721600&maxtime=1326153600&apikey=09C43A9B270A470B8EB8F2946A9369F3
+10. http://otter.topsy.com/searchcount.json?q=from:riteaid&page=1&perpage=100&type=tweet&mintime=1325721600&maxtime=1403568000&apikey=09C43A9B270A470B8EB8F2946A9369F3
+11. rate limit : https://code.google.com/p/otterapi/wiki/RateLimit 
+12. https://gist.github.com/jboynyc/4700064
+
+
 #mongodb connection:
 1. http://mongodb.github.io/node-mongodb-native/api-generated/db.html#stats
 2. http://knowledgelayer.softlayer.com/procedure/configure-mongodb-networking on external web services. 

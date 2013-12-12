@@ -8,19 +8,13 @@ var mylib_jobs = require('./lib_jobs.js');
 var mylib_util = require('./lib_util.js');
 
 var myjobs = new mylib_jobs.MyJobs();
-myjobs.jobs_target = 'thingiverse';
-myjobs.client_id = os.hostname();
-myjobs.myenv = mylib_client.get_env();
-
-
-mylib_client.get_dbs(myjobs, function(db_s, db_c){
-	myjobs.db_server = db_s;
-	myjobs.db_client = db_c;
-	main();
-});
+mylib_client.myjobs_init(myjobs, 'topsy_tw_username', function(){main()});
 
 myjobs.eventEmitter.on('err_mongodb', function(which_db, function_name, err){
 	mylib_util.event_print('err_mongodb', which_db, function_name, err);
+});
+myjobs.eventEmitter.on('fs_error', function(which_db, function_name, err){
+	mylib_util.event_print('fs_error', which_db, function_name, err);
 });
 myjobs.eventEmitter.on('jobs_step_done', function(function_name){
 	mylib_util.event_print('jobs_step_done', function_name);
@@ -30,15 +24,16 @@ myjobs.eventEmitter.on('jobs_step_done', function(function_name){
 				myjobs.eventEmitter.emit('jobs_step_done', 'jobs_get_from_server');
 			});
 			break;
+		case 'web_access_interval_validate':
+		case 'jobs_do_resp_callbck':
+		case 'file_write':
+		case 'jobs_do_err_callback':
 		case 'jobs_get_from_server':
 			mylib_client.jobs_do_in_client(myjobs, function(job){
-				jobs_do_download(job);
+				setTimeout(function(){
+					jobs_do_download(job);
+				}, myjobs.jobs_settings[myjobs.jobs_target].web_access_interval);
 			});
-			break;
-		case 'jobs_do':
-			setTimeout(function(){
-				myjobs.eventEmitter.emit('jobs_step_done', 'jobs_get_from_server');
-			}, myjobs.jobs_settings.web_access_interval);
 			break;
 	}
 });
@@ -64,25 +59,35 @@ function main(){
 
 
 
+http://otter.topsy.com/search.js?callback=jQuery183031899071275256574_1386779308614&q=from%3Ariteaid&type=tweet&offset=0&perpage=10&mintime=1316649600&maxtime=1316736000&call_timestamp=1386779308989&apikey=09C43A9B270A470B8EB8F2946A9369F3&_=1386779309870
+
+
 function jobs_do_download(job){
 	mylib_util.step_print("#### jobs_do_download() ####");
 	var job_file_path = '../../'+myjobs.myenv['data_row_path']+"/web_jobs/"+myjobs.jobs_target+"/"+job.job_id+".html";
 	job.job_file_path = job_file_path;
+	console.log(job.job_url);
 	var vars = {uri:job.job_url, job_file_path:job.job_file_path, job:job, job_step:"jobs_do"};
 	mylib_http.request_get_http(vars, jobs_do_resp_callbck, jobs_do_err_callback);
 }
 function jobs_do_resp_callbck(http_statusCode, vars, resp, body){
-	mylib_util.step_print("#### jobs_do_resp_callback() ####");
-	fs.writeFile(vars.job_file_path, body, function(err){
-		if (err) {
-			myjobs.eventEmitter.emit("fs_error", "writeFile", "jobs_do");
-			return
-		} else {
-			mylib_client.jobs_do_update(myjobs, vars.job, myjobs.job_status_figure.done, function(){
-				myjobs.eventEmitter.emit('jobs_step_done', 'jobs_do');
-			});
+	mylib_util.step_print("#### jobs_do_resp_callback() ####", http_statusCode);
+	if (http_statusCode == 200) {
+		myjobs.wrong_http_status_i = 0;
+		tw = JSON.parse(body)
+		tw_l = tw.response.list
+		console.log('response.list: ', tw_l.length)
+		if (tw_l.length >= 100){
+			console.log(tw)
 		}
-	})
+		mylib_client.file_write(myjobs, vars.job, vars.job_file_path, body);
+		return;
+	} else { // needs to increase settings automatically 
+		mylib_client.jobs_do_update(myjobs, vars.job, http_statusCode, function(){
+			mylib_client.web_access_interval_validate(myjobs);
+		});
+		return
+	}
 }
 function jobs_do_err_callback(error, vars){
 	mylib_util.step_print("#### jobs_do_err_callback() ####");
@@ -93,7 +98,7 @@ function jobs_do_err_callback(error, vars){
 		console.log('this error can be ignored ======2');
 	} else {
 		mylib_client.jobs_do_update(myjobs, vars.job, myjobs.job_status_figure.error_when_reading, function(){
-			myjobs.eventEmitter.emit('jobs_step_done', 'jobs_do');
+			myjobs.eventEmitter.emit('jobs_step_done', 'jobs_do_err_callback');
 		});
 	}
 }
