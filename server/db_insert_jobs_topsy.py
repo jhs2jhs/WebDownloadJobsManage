@@ -116,6 +116,7 @@ def make_job(s, tw_username, t_d_s, t_d_n):
 
 def get_jobs(event_windows):
     jobs = []
+    i = 0;
     for company_name in event_windows:
         rank = event_windows[company_name]['rank']
         if (event_windows[company_name].has_key('tw_usernames')):
@@ -131,6 +132,10 @@ def get_jobs(event_windows):
                             print ls, s
                         job = make_job(s, tw_username, t_d_s, t_d_n)
                         jobs.append(job)
+                        if rank == '100':
+                            i = i + 1
+                            print s, i
+                            print rank, company_name, tw_username, announce_date, event_date
     print 'jobs.len: ', len(jobs)
     return jobs
 
@@ -150,7 +155,6 @@ def job_mongodb(jobs, option):
         elif option == 'insert_bulk':
             jobs_sub.append(job)
         i = i + 1
-        #print i
         if not(option == 'insert_bulk'):
             print i,
         if i > t + 1000:
@@ -159,6 +163,8 @@ def job_mongodb(jobs, option):
             if option == 'insert_bulk':
                 myinsert.job_insert(jobs_sub, job_target);
                 jobs_sub = []
+    if option == 'insert_bulk':
+        myinsert.job_insert(jobs_sub, job_target);
     print i
 ###### custom function end, need to modify according to real case
 

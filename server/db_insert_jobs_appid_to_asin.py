@@ -47,6 +47,8 @@ def job_mongodb(option):
 				myinsert.job_insert(jobs, job_target);
 				jobs = []
 		r = c.fetchone()
+	if option == 'insert_bulk':
+        myinsert.job_insert(jobs, job_target);
 	print i
 ###### custom function end, need to modify according to real case
 
