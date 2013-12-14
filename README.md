@@ -27,6 +27,7 @@ ls -halt | head -n 3
 	17. why not communicate over mongodb directly, but on http: it is becasue http is better supported by firewall, and it has better interface designed. 
 	17. mongodb bulk update/insert: better to use mongoimport tools. http://stackoverflow.com/questions/4444023/bulk-update-upsert-in-mongodb , so it would require id to be unique and matches the same in boths. 
 	17. check database for collections to find out job lists. if process is there, leave it, unless the processing is dead. if the process is not there, retreat with server to found any jobs available, if available, revoke process based on job name. 
+17. add two functions: start projects automatically, update code automatically, how to have different project development settings. 
 
 
 

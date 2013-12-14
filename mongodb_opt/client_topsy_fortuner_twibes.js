@@ -109,7 +109,7 @@ function jobs_do_resp_callbck(http_statusCode, vars, resp, body){
 				'apikey':'09C43A9B270A470B8EB8F2946A9369F3'
 			});
 			var job_url = 'http://otter.topsy.com/search.json?'+qs;
-			var job_id = p_i+'='+rank+'='+tw_username+'='+date_s+'='+t;
+			var job_id = (p_i+1)+'='+rank+'='+tw_username+'='+date_s+'='+t;
 			var job_file_path = '/web_jobs/'+myjobs.jobs_target+"/"+job_id+'.html';
 			var job = mylib_client.make_job(myjobs, job_id, job_url, job_file_path);
 			console.log(job);
