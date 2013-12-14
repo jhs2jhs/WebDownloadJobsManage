@@ -42,6 +42,9 @@ ls -halt | head -n 3
 7. later problem will be put as issue. 
 
 
+# Twibes: 
+1. http://www.twibes.com/finance/twitter-list
+2. the people list do not change
 
 # Topsy API
 1. https://code.google.com/p/otterapi/wiki/Resources?tm=6

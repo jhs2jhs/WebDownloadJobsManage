@@ -59,13 +59,16 @@ if __name__ == "__main__":
 	if len(cmds) != 2:
 		print "ERROR: please follow the CMD format"
 		print "CMD: please try again"
+		return
 	elif (cmds[1] != 'upsert_each' and cmds[1] != 'insert_each' and cmds[1] != 'insert_bulk'):
 		print "ERROR: please follow the CMD format", cmds
 		print "CMD: please try again"
+		return
 	else :
 		print "start"
 		job_mongodb(cmds[1])
 		print 'done'
+		return
 	
 
 

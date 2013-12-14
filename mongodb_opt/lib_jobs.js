@@ -1,6 +1,13 @@
 var os = require('os');
 var events = require('events');
 
+var job_status_figure = {
+	'unread': 1,
+	'assigned': 2,
+	'done': 3,
+	'error_when_reading': 4
+}
+
 function MyJobs(){
 	this.jobs_target = '';
 	this.jobs_settings = {};
@@ -17,12 +24,7 @@ function MyJobs(){
 		"job_put": "jobs_put"
 	};
 
-	this.job_status_figure = {
-		'unread': 1,
-		'assigned': 2,
-		'done': 3,
-		'error_when_reading': 4
-	};
+	this.job_status_figure = job_status_figure;
 
 	this.eventEmitter = new events.EventEmitter();
 	this.wrong_http_status_i = 0;
@@ -31,3 +33,4 @@ function MyJobs(){
 }
 
 module.exports.MyJobs = MyJobs;
+module.exports.job_status_figure = job_status_figure;

@@ -3,6 +3,7 @@ var color = require('colors');
 var fs = require("fs");
 var os = require('os');
 var mylib_util = require('./lib_util.js');
+var mylib_jobs = require('./lib_jobs.js');
 
 
 function get_env(){
@@ -281,6 +282,35 @@ function file_write(myjobs, job, job_file_path, body){
 }
 
 
+
+
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+function make_job(myjobs, job_id, job_url, job_file_path){
+	var job = {}
+	job.job_id = job_id;
+	job.job_url = job_url;
+	job.job_file_path = job_file_path;
+	job.client_id = myjobs.client_id;
+	job.job_status = mylib_jobs.job_status_figure.unread;
+	job.http_status = -1;
+	job.create_date = new Date();
+	job.update_date = new Date();
+	return job;
+}
+function jobs_add_in_server(myjobs, job, cp){
+	mylib_util.step_print("#### jobs_get_into_client() ####");
+	myjobs.db_server.collection(myjobs.jobs_target).save(job, {w:1}, function(err, result){
+		if (err){
+			myjobs.eventEmitter.emit('err_mongodb', "mongodb_server", "jobs_add_in_server", err);
+			return;
+		}
+		cp();
+	});
+
+}
+
+
 module.exports.get_env = get_env;
 module.exports.get_dbs = get_dbs;
 module.exports.myjobs_init = myjobs_init;
@@ -295,5 +325,7 @@ module.exports.file_write = file_write;
 module.exports.web_access_interval_get = web_access_interval_get;
 module.exports.web_access_interval_update = web_access_interval_update;
 module.exports.web_access_interval_validate = web_access_interval_validate;
+module.exports.jobs_add_in_server = jobs_add_in_server;
+module.exports.make_job = make_job;
 
 
