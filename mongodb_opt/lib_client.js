@@ -13,53 +13,92 @@ function get_env(){
 	return env[node_env];
 }
 
+function get_mongoclient(myjobs, cp){
+	mylib_util.step_print("#### get_mongoclient() #####");
+	myjobs.mongodb_server_server = new mongodb.Server(myjobs.myenv['mongodb_server_address'], myjobs.myenv['mongodb_server_port'], {auto_reconnect:true});
+	myjobs.mongodb_server_client = new mongodb.Server(myjobs.myenv['mongodb_client_address'], myjobs.myenv['mongodb_client_port'], {auto_reconnect:true});
+	myjobs.mongodb_server = new mongodb.MongoClient(myjobs.mongodb_server_server);
+	myjobs.mongodb_client = new mongodb.MongoClient(myjobs.mongodb_server_client);
+	cp();
+}
+
 function get_dbs(myjobs, cp){
 	mylib_util.step_print("#### get_dbs() #####");
-	var mongodb_server_server = new mongodb.Server(myjobs.myenv['mongodb_server_address'], myjobs.myenv['mongodb_server_port'], {auto_reconnect:true});
-	var mongodb_server_client = new mongodb.Server(myjobs.myenv['mongodb_client_address'], myjobs.myenv['mongodb_client_port'], {auto_reconnect:true});
-	var mongodb_server = new mongodb.MongoClient(mongodb_server_server);
-	var mongodb_client = new mongodb.MongoClient(mongodb_server_client);
-	mongodb_server.open(function (err, mongodbclient){
+	myjobs.mongodb_server.open(function (err, mongodbclient){
 		if (err){
 			myjobs.eventEmitter.emit('err_mongodb', 'mongodb_server', 'get_dbs', err);
 			return
 		}
-		mongodb_server = mongodbclient;
-		db_server = mongodb_server.db(myjobs.myenv['mongodb_server_db_name']);
-		db_server.stats(function(err, stats){
+		myjobs.mongodb_server = mongodbclient;
+		myjobs.db_server = myjobs.mongodb_server.db(myjobs.myenv['mongodb_server_db_name']);
+		myjobs.db_server.stats(function(err, stats){
 			console.log("db_server.stats()");
 			//console.log(err, stats);
-			mongodb_client.open(function (err, mongodbclient){
+			myjobs.mongodb_client.open(function (err, mongodbclient){
 				if (err){
 					myjobs.eventEmitter.emit('err_mongodb', 'mongodb_client', 'get_dbs', err);
 					return
 				}
-				mongodb_client = mongodbclient;
-				db_client = mongodb_server.db(myjobs.myenv['mongodb_client_db_name']);
-				db_client.stats(function(err, stats){
+				myjobs.mongodb_client = mongodbclient;
+				myjobs.db_client = myjobs.mongodb_client.db(myjobs.myenv['mongodb_client_db_name']);
+				myjobs.db_client.stats(function(err, stats){
 					if (err){
 						myjobs.eventEmitter.emit('err_mongodb', 'mongodb_client', 'get_dbs', err);
 					}
 					console.log("db_client.stats()");
 					//console.log(err, stats);
-					cp(db_server, db_client);
+					cp();
 				});
 			});
 		});
 	});
 }
 
+function close_dbs(myjobs, cp){
+	mylib_util.step_print("#### close_dbs() #####");
+	myjobs.db_server.close(function(err, result){
+		if (err) {
+			console.log(' error in close_dbs db_server');
+			return
+		}
+		myjobs.db_client.close(function(err, result){
+			if (err){
+				console.log('error in close_dbs db_client');
+				return
+			}
+			cp();
+		});
+	});
+}
+function close_mongoclient(myjobs, cp){
+	mylib_util.step_print("#### close_mongoclient() #####");
+	myjobs.mongodb_server.close(function(err, result){
+		if (err) {
+			console.log('error in close_mongoclient mongodb_server');
+			return
+		}
+		myjobs.mongodb_client.close(function(err, result){
+			if(err){
+				console.log('error in close_mongoclient mongodb_client');
+				return
+			}
+			cp();
+		});
+	});
+}
+
 function myjobs_init(myjobs, jobs_target, cp){
+	mylib_util.step_print("#### myjobs_init() #####");
 	myjobs.jobs_target = jobs_target;
 	myjobs.client_id = os.hostname();
 	myjobs.myenv = get_env();
 
 	mylib_util.folder_init(myjobs.myenv['data_row_path'], myjobs.jobs_target);
 
-	get_dbs(myjobs, function(db_s, db_c){
-		myjobs.db_server = db_s;
-		myjobs.db_client = db_c;
-		cp();
+	get_mongoclient(myjobs, function(){
+		get_dbs(myjobs, function(){
+			cp();
+		})
 	});
 	console.log(myjobs);
 }
@@ -312,7 +351,10 @@ function jobs_add_in_server(myjobs, job, cp){
 
 
 module.exports.get_env = get_env;
+module.exports.get_mongoclient = get_mongoclient;
 module.exports.get_dbs = get_dbs;
+module.exports.close_dbs = close_dbs;
+module.exports.close_mongoclient = close_mongoclient;
 module.exports.myjobs_init = myjobs_init;
 module.exports.jobs_settings_from_server = jobs_settings_from_server;
 module.exports.jobs_get_from_server = jobs_get_from_server;

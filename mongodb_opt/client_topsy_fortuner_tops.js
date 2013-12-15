@@ -41,7 +41,11 @@ myjobs.eventEmitter.on('jobs_finish', function(which_db, function_name){
 	mylib_util.event_print("jobs_finish", which_db, function_name);
 	switch(function_name){
 		case 'jobs_get_from_server':
-			
+			mylib_client.close_dbs(myjobs, function(){
+				mylib_client.close_mongoclient(myjobs, function(){
+					console.log('.....................finish...................');
+				})
+			})
 			break;
 		case 'jobs_do_in_client':
 			myjobs.eventEmitter.emit('jobs_step_done', 'jobs_settings_from_server');

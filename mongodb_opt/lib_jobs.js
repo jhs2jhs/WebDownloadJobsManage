@@ -14,6 +14,10 @@ function MyJobs(){
 	this.client_id = os.hostname();
 
 	this.myenv = {};
+	this.mongodb_server_server;
+	this.mongodb_server_client;
+	this.mongodb_server;
+	this.mongodb_client;
 	this.db_server;
 	this.db_client;
 

@@ -67,7 +67,7 @@ def get_jobs(tws):
         now = datetime.datetime.now()
         now_string = now.strftime('%d-%b-%y')
         now_timestamp = calendar.timegm(now.utctimetuple())
-        s = '0=%s=%s=%s=%s0'%(rank, tw_username, now_string, now_timestamp)
+        s = '0=%s=%s=%s=%s=0'%(rank, tw_username, now_string, now_timestamp)
         #print s
         ls = s.split('=')
         if not (len(ls) == 3):
