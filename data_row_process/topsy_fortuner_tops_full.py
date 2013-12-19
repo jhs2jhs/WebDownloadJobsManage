@@ -6,7 +6,7 @@ import sqlite3
 import platform
 
 fold_base = 'data_row'
-fold_base = 'test_data_row'
+#fold_base = 'test_data_row'
 jobs_target = 'topsy_fortuner_tops_full'
 client_id = platform.node()
 print client_id
