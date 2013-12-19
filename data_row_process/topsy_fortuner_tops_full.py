@@ -70,7 +70,11 @@ def loop_dir(p):
 		t = 0
 		if os.path.isdir(file_full_path):
 			print '****** is dir', file_full_path
-		ls = dir_list.replace('.html', '').strip().split('=')
+		fileName, fileExtension = os.path.splitext(dir_list)
+		#print fileName, fileExtension
+		if fileExtension != '.html':
+			continue
+		ls = fileName.strip().split('=')
 		page_number = ls[0]
 		company_rank = ls[1]
 		company_name = ls[2]
