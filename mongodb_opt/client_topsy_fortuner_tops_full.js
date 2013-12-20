@@ -77,10 +77,11 @@ function jobs_do_resp_callbck(http_statusCode, vars, resp, body){
 	if (http_statusCode == 200) {
 		myjobs.wrong_http_status_i = 0;
 		// we will check whether return list is large than 200 or not to determine whether should stop. 
-		tw = JSON.parse(body)
-		tw_ls = tw.response.list
-		console.log('response.list: ', tw_ls.length)
-		if (tw_ls.length >= 100){
+		tw = JSON.parse(body);
+		tw_ls = tw.response.list;
+		tw_total_left = parseInt(tw.response.total);
+		console.log('response.list: ', tw_ls.length, tw_total_left)
+		if (tw_total_left > 0){
 			tw_ls.sort(function(a, b){
 				var a1st = -1;
 				var b1st = 1;

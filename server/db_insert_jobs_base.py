@@ -3,10 +3,10 @@ import pymongo
 from datetime import datetime
 
 mongodb_url = 'mongodb://192.168.0.30:27017/'
-#mongodb_url = 'mongodb://127.0.0.1:27017/'
+mongodb_url = 'mongodb://127.0.0.1:27017/'
 client = MongoClient(mongodb_url)
 db = client['web_jobs_server']
-#db = client['test_web_jobs_server']
+db = client['test_web_jobs_server']
 print "** DB Collections: ", db.collection_names()
 
 #collection = db[job_target]
