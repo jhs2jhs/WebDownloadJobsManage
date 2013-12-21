@@ -81,7 +81,7 @@ function jobs_do_resp_callbck(http_statusCode, vars, resp, body){
 		tw_ls = tw.response.list;
 		tw_total_left = parseInt(tw.response.total);
 		console.log('response.list: ', tw_ls.length, tw_total_left)
-		if (tw_total_left > 0){
+		if (tw_total_left > 2){
 			tw_ls.sort(function(a, b){
 				var a1st = -1;
 				var b1st = 1;
