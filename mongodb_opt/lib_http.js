@@ -1,5 +1,6 @@
 var request = require('request');
-var http = require('http');
+//var http = require('http');
+var http = require('follow-redirects').http
 var colors = require('colors');
 var urlparse = require('url');
 
@@ -22,6 +23,7 @@ function request_get_http(vars, resp_callback, err_callback){
 			'port':url.port,
 			'path': url.path,
 			'method': 'GET',
+			'maxRedirects': 5
 		}
 	//}
 	//console.log(req_options);

@@ -310,7 +310,8 @@ function jobs_do_update(myjobs, job, job_status, cp){
 function file_write(myjobs, job, job_file_path, body){
 	fs.writeFile(job_file_path, body, function(err){
 		if (err) {
-			myjobs.eventEmitter.emit("fs_error", "writeFile", "file_write");
+			console.log(err);
+			myjobs.eventEmitter.emit("fs_error", "writeFile", "file_write", err);
 			return
 		} else {
 			jobs_do_update(myjobs, job, myjobs.job_status_figure.done, function(){

@@ -31,7 +31,11 @@ job_settings = [
 	########
 	{'job_target':'topsy_fortuner_twibes', 'settings_key':'web_access_interval', 'settings_value':1000},
 	{'job_target':'topsy_fortuner_twibes', 'settings_key':'client_job_request_count', 'settings_value':10},
-	{'job_target':'topsy_fortuner_twibes', 'settings_key':'connection_try_max', 'settings_value':10}
+	{'job_target':'topsy_fortuner_twibes', 'settings_key':'connection_try_max', 'settings_value':10},
+	########
+	{'job_target':'appid_asin_pairs', 'settings_key':'web_access_interval', 'settings_value':1000},
+	{'job_target':'appid_asin_pairs', 'settings_key':'client_job_request_count', 'settings_value':10},
+	{'job_target':'appid_asin_pairs', 'settings_key':'connection_try_max', 'settings_value':10}
 ]
 
 def job_settings_init():

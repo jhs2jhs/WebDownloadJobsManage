@@ -17,6 +17,7 @@
 		"prettyjson":"*",
 		"filesize":"*",
 		"debug":"*",
-		"should":"*"
+		"should":"*",
+		"follow-redirects": "*"
 	}
 }
