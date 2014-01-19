@@ -7,6 +7,7 @@ sql_init = '''
 CREATE TABLE IF NOT EXISTS post_appid_to_asin (
 	app_id TEXT NOT NULL UNIQUE,
 	asin TEXT NOT NULL UNIQUE,
+	asin_url TEXT, 
 	UNIQUE (app_id, asin)
 );
 '''
@@ -33,14 +34,15 @@ def loop():
 def db_integration(db, db1):
 	c = db.cursor()
 	c1 = db1.cursor()
-	c1.execute('SELECT app_id, asin FROM post_appid_to_asin')
+	c1.execute('SELECT app_id, asin, asin_url FROM post_appid_to_asin')
 	i = 0
 	i_i = 0
 	r1 = c1.fetchone()
 	while r1:
 		app_id = r1[0]
 		asin = r1[1]
-		c.execute('INSERT OR IGNORE INTO post_appid_to_asin (app_id, asin) VALUES (?,?)', (app_id, asin))
+		asin_url = r1[2]
+		c.execute('INSERT OR IGNORE INTO post_appid_to_asin (app_id, asin, asin_url) VALUES (?,?,?)', (app_id, asin, asin_url))
 		i = i + 1
 		if (i > i_i):
 			i_i = i_i + 1000

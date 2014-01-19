@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS post_appid_to_asin (
 );
 '''
 sql_insert = '''
-INSERT OR IGNORE INTO post_appid_to_asin (app_id, asin) VALUES (?,?)
+INSERT OR IGNORE INTO post_appid_to_asin (app_id, asin, asin_url) VALUES (?,?,?)
 '''
 #######
 
@@ -41,7 +41,7 @@ def parse_html(p, job_id, job_target, k, t):
 				asin_url = a_attrs['href']
 				asin_url = asin_url.replace('http://www.amazon.com/', '').split('/')[0]		
 		c = db.cursor()
-		c.execute(sql_insert, (job_id, asin)) # job_id == app_id
+		c.execute(sql_insert, (job_id, asin, asin_url)) # job_id == app_id
 		db.commit()
 		c.close()
 		#print asin, job_id, k, t

@@ -18,24 +18,19 @@ print "## hello, ", client_id, job_target
 def get_pairs(file_source):
     print "## get_appid_asin_pairs"
     pairs = {}
-    f = codecs.open(file_source, mode='r', encoding='utf-8')
-    #c = conn.cursor()
-    i = 0
-    while 1:
-        line = f.readline()
-        i = i + 1
-        if not line:
-            break
-        if i <= 2:
-            continue
-        line = line.strip()
-        ls = line.split('\t')
-        app_id = ls[0].strip()
-        asin = ls[1].strip()
-        #print app_id, asin
+    conn = sqlite3.connect('./appid_to_asin.db')
+    c = conn.cursor()
+    c.execute('SELECT app_id, asin, asin_url FROM post_appid_to_asin')
+    rs = c.fetchall()
+    for r in rs:
+        app_id = r[0]
+        asin = r[1]
+        asin_url = r[2]
+        #print app_id, asin, asin_url
         if not pairs.has_key(asin): # we have to choose company_name, as company_name is the only way to identify
-            pairs[asin] = app_id
-    f.close()
+            pairs[asin] = {}
+        pairs[asin]['app_id'] = app_id
+        pairs[asin]['title_url'] = asin_url
     print len(pairs)
     return pairs
 
@@ -59,6 +54,7 @@ def get_asins_urls(pairs):
     print len(asins_urls), i
     return asins_urls
 
+'''
 def check_appid(pairs, asins_urls):
     print "## check_appid"
     i = 0
@@ -67,7 +63,7 @@ def check_appid(pairs, asins_urls):
             print asin, pairs[asin]
             i = i +1
     print i
-
+'''
 
 def make_job_appid(app_id, asin):
     job_id = 'appid_%s'%(app_id)
@@ -102,11 +98,15 @@ def get_jobs(pairs, asins_urls):
     jobs = []
     i = 0;
     for asin in pairs:
-        app_id = pairs[asin]
+        app_id = pairs[asin]['app_id']
         if not asins_urls.has_key(asin):
-            print asin, pairs[asin]
-            continue
-        asin_url = asins_urls[asin]
+            if pairs[asin]['title_url'] == '':
+                print asin, pairs[asin]
+                continue
+            else:
+                asin_url = 'http://www.amazon.com/%s/dp/%s'%(pairs[asin]['title_url'], asin)
+        else:
+            asin_url = asins_urls[asin]
         job_appid = make_job_appid(app_id, asin)
         jobs.append(job_appid)
         job_asin = make_job_asin(asin, app_id, asin_url)
@@ -144,7 +144,7 @@ def job_mongodb(jobs, option):
         myinsert.job_insert(jobs_sub, job_target);
     print i
 ###### custom function end, need to modify according to real case
-'''
+
 if __name__ == "__main__":
     fi = "./appid_to_asin_pairs.txt"
     pairs = get_pairs(fi)
@@ -172,6 +172,8 @@ if __name__ == "__main__":
         jobs = get_jobs(pairs, asins_urls)
         job_mongodb(jobs, cmds[1])
         print 'done'
+
+'''
 
 
 
