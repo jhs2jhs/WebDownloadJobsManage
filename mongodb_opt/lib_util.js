@@ -22,7 +22,7 @@ function folder_init(data_row_path, my_job_target){
 	folder_path = '../../'+data_row_path+'/web_jobs/'+my_job_target;
 	mkdirp(folder_path, function(err){
 		console.error(err)
-	})
+	});
 }
 
 module.exports.step_print = step_print;

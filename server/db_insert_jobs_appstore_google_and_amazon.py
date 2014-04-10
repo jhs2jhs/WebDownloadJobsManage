@@ -18,7 +18,7 @@ print "## hello, ", client_id, job_target
 def get_pairs(file_source):
     print "## get_appid_asin_pairs"
     pairs = {}
-    conn = sqlite3.connect('./appid_to_asin.db')
+    conn = sqlite3.connect('./integration_appid_to_asin.db')
     c = conn.cursor()
     c.execute('SELECT app_id, asin, asin_url FROM post_appid_to_asin')
     rs = c.fetchall()
